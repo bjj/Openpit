@@ -22,6 +22,7 @@ object Main {
 	World.put(10,10,11, Stone())
 	World.put(12,10,11, Stone())
 	World.put(11,10,15, Stone())
+	for (x <- 20 to 30) World.put(x, 20, 11, Cobblestone())
 
 	for (y <- 20 until 30; z <- 11 until 15) {
 	    World.put(15, y, z, Glass())
