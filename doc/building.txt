@@ -1,5 +1,8 @@
 Unpack lwjgl-2.5 in lib
+    http://sourceforge.net/projects/java-game-lib/files/Official%20Releases/LWJGL%202.5/
+
 Unpack simplex3d in lib (currently buffers not used)
+    http://code.google.com/p/simplex3d/downloads/list
 
 stuff in my lib:
     lib
