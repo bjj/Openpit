@@ -80,4 +80,6 @@ sbt
 > run
 > package
 
+After you build on Linux you can run on windows with:
 
+    win-R + cmd + pushd \\your\unc\path\git\openpit\windows + openpit
