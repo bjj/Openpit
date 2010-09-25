@@ -68,33 +68,47 @@ object Render {
     val grassBot = Vec2f(1f/16f, 0f)
     val grassSide = Vec2f(2f/16f, 0f)
     val stoneAll = Vec2f(0, 1f/16f)
+    val glassAll = Vec2f(0, 2f/16f)
 
     def grass(loc: Vec3i) { cube(loc, grassTop, grassSide, grassBot) }
     def stone(loc: Vec3i) { cube(loc, stoneAll, stoneAll, stoneAll) }
+    def glass(loc: Vec3i) { cube(loc, glassAll, glassAll, glassAll) }
 
-    def renderBlock(l: Vec3i, b: Block) = b match {
+    def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
 	case Grass() => grass(l)
 	case Stone() => stone(l)
-	case Air     => Unit
+	case _ => Unit
     }
 
-    def renderWorld() {
+    def renderTranslucentBlock(l: Vec3i, b: Block) = b match {
+	case Glass() => glass(l)
+	case _ => Unit
+    }
+
+    def renderWorld(s: (Vec3i, Block)=>Unit) {
 	Texture.Terrain.bind
 	glColor4f(1,1,1,1)
 	glBegin(GL_QUADS)
-	World.foreach(renderBlock)
+	World.foreach(s)
 	glEnd()
     }
 
-    lazy val displayList = {
+    def makeDisplayList(s: (Vec3i, Block) => Unit) = {
 	val index = glGenLists(1)
 	glNewList(index, GL_COMPILE)
-	renderWorld()
+	renderWorld(s)
 	glEndList()
 	index
     }
 
+    lazy val opaqueDisplayList = makeDisplayList(renderOpaqueBlock)
+    lazy val translucentDisplayList = makeDisplayList(renderTranslucentBlock)
+
     def render() {
-	glCallList(displayList)
+	glCallList(opaqueDisplayList)
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glCallList(translucentDisplayList)
+	glDisable(GL_BLEND)
     }
 }

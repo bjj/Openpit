@@ -23,6 +23,10 @@ object Main {
 	World.put(12,10,11, Stone())
 	World.put(11,10,15, Stone())
 
+	for (y <- 20 until 30; z <- 11 until 15) {
+	    World.put(15, y, z, Glass())
+	}
+
 	init()
 	while (!finished) {
 	    input()
