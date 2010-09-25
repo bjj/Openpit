@@ -1,0 +1,31 @@
+Hints for texturing:
+
+    Load art/terrain.xcf in gimp.
+
+    Use the rectangular select tool ('R') to outline the tile you're working on.
+    (Add guides as necessary)
+
+    "Float" the selection (ctrl-shift-L) so that it is its own layer.
+
+    Now you can work on the texture and use "Layer | Transform | Offset"
+    (ctrl-shift-o) by half to flip the texture around to blend the seams.
+
+    When done, "anchor layer" (ctrl-h) to drop the floated selection back down.
+
+
+A starting point with a photo:
+
+    Pick a picture with flat lighting.  Google "high pass filter" texture
+    techniques to flatten images with bright/dark spots.
+
+    Use "Filters | Map | Make seamless".  This will blend the image with
+    the offset version of itself to ensure it tiles.  This can be tricky
+    with realistic textures, but this one won't be realistic long.
+
+    Scale the image (with "good" scaling like cubic) down to 64x64.
+
+    Blur it once.  This reduces the contrast of the final result.
+
+    Scale the image (with "Interpolation: none") down to 16x16.  The
+    nearest neighbor resampling leaves you with a higher frequency result
+    which helps it tile and makes it fit the "16 bit" theme.
