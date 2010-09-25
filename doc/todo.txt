@@ -1,0 +1,7 @@
+windows
+    consider launch4j, jsmooth windows launchers
+
+opengl
+    experiment with different combos of glTexParameteri with mipmaps
+    generate 'nearest' own mipmaps?  yes, especially important with texture atlas
+    "upgrade" from displaylists to vbos

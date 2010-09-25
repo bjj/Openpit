@@ -1,0 +1,13 @@
+Openpit
+-------
+Explore and build in a blocky world.
+
+Building
+--------
+See doc/building.txt for hints on building.
+
+Running
+-------
+Windows users should be able to go to 'windows' and double click OpenPit.exe
+
+Linux and MacOS users should be able to 'run' from sbt (see docs/building.txt)

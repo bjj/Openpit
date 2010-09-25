@@ -1,0 +1,80 @@
+Unpack lwjgl-2.5 in lib
+Unpack simplex3d in lib (currently buffers not used)
+
+stuff in my lib:
+    lib
+    lib/simplex3d
+    lib/simplex3d/simplex3d-buffer-core.jar
+    lib/simplex3d/simplex3d-math-float.jar
+    lib/simplex3d/COPYING.LESSER
+    lib/simplex3d/simplex3d-buffer-int.jar
+    lib/simplex3d/simplex3d-buffer.license
+    lib/simplex3d/simplex3d-math-double.jar
+    lib/simplex3d/lib
+    lib/simplex3d/lib/asm-3.2.jar
+    lib/simplex3d/lib/asm-3.2.license
+    lib/simplex3d/simplex3d-buffer-double.jar
+    lib/simplex3d/simplex3d-buffer-float.jar
+    lib/simplex3d/simplex3d-math-core.jar
+    lib/simplex3d/simplex3d-math.license
+    lib/simplex3d/simplex3d-math-int.jar
+    lib/simplex3d/COPYING
+    lib/simplex3d/Readme.txt
+    lib/scala-library.jar
+    lib/lwjgl-2.5
+    lib/lwjgl-2.5/native
+    lib/lwjgl-2.5/native/linux
+    lib/lwjgl-2.5/native/linux/libjinput-linux.so
+    lib/lwjgl-2.5/native/linux/libjinput-linux64.so
+    lib/lwjgl-2.5/native/linux/libopenal.so
+    lib/lwjgl-2.5/native/linux/libopenal64.so
+    lib/lwjgl-2.5/native/linux/liblwjgl64.so
+    lib/lwjgl-2.5/native/linux/liblwjgl.so
+    lib/lwjgl-2.5/native/solaris
+    lib/lwjgl-2.5/native/solaris/liblwjgl.so
+    lib/lwjgl-2.5/native/solaris/liblwjgl64.so
+    lib/lwjgl-2.5/native/solaris/libopenal.so
+    lib/lwjgl-2.5/native/macosx
+    lib/lwjgl-2.5/native/macosx/openal.dylib
+    lib/lwjgl-2.5/native/macosx/liblwjgl.jnilib
+    lib/lwjgl-2.5/native/macosx/libjinput-osx.jnilib
+    lib/lwjgl-2.5/native/windows
+    lib/lwjgl-2.5/native/windows/jinput-raw_64.dll
+    lib/lwjgl-2.5/native/windows/jinput-dx8_64.dll
+    lib/lwjgl-2.5/native/windows/OpenAL64.dll
+    lib/lwjgl-2.5/native/windows/lwjgl.dll
+    lib/lwjgl-2.5/native/windows/lwjgl64.dll
+    lib/lwjgl-2.5/native/windows/jinput-raw.dll
+    lib/lwjgl-2.5/native/windows/jinput-dx8.dll
+    lib/lwjgl-2.5/native/windows/OpenAL32.dll
+    lib/lwjgl-2.5/jar
+    lib/lwjgl-2.5/jar/lwjgl_util_applet.jar
+    lib/lwjgl-2.5/jar/lwjgl_util.jar
+    lib/lwjgl-2.5/jar/lwjgl.jar
+    lib/lwjgl-2.5/jar/lwjgl_test.jar
+    lib/lwjgl-2.5/jar/lzma.jar
+    lib/lwjgl-2.5/jar/AppleJavaExtensions.jar
+    lib/lwjgl-2.5/jar/jinput.jar
+    lib/lwjgl-2.5/jar/lwjgl-debug.jar
+    lib/lwjgl-2.5/doc
+    lib/lwjgl-2.5/doc/lwjgl_hidden_switches.text
+    lib/lwjgl-2.5/doc/LICENSE
+    lib/lwjgl-2.5/doc/3rdparty
+    lib/lwjgl-2.5/doc/3rdparty/jinput_license.txt
+    lib/lwjgl-2.5/doc/3rdparty/lzma_license.txt
+    lib/lwjgl-2.5/doc/3rdparty/openal_license.txt
+    lib/lwjgl-2.5/doc/3rdparty/jogl_license.txt
+    lib/lwjgl-2.5/doc/README
+    lib/lwjgl-2.5/doc/CREDITS
+
+Build with sbt:
+
+http://code.google.com/p/simple-build-tool/
+http://code.google.com/p/simple-build-tool/wiki/Setup
+
+sbt
+> compile
+> run
+> package
+
+
