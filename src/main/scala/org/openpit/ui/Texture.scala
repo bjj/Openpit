@@ -22,13 +22,13 @@ import org.lwjgl.opengl.GL11._
 import org.lwjgl.util.glu.GLU
 
 class Texture(val id:Int, val width:Int, val height:Int) {
-    def bind {
+    def bind() {
         if (Texture.lastTextureBound != this) {
             glBindTexture(GL_TEXTURE_2D, id)
             Texture.lastTextureBound = this
         }
     }
-    def unbind {
+    def unbind() {
         glBindTexture(GL_TEXTURE_2D, 0)
         Texture.lastTextureBound = null
     }
@@ -42,6 +42,7 @@ object Texture {
     lazy val Stone = loadGrid("terrain.png", 16)
 
     lazy val Terrain = load("terrain.png")
+    lazy val Crosshair = load("crosshair.png")
 
     private var lastTextureBound: Texture = null
 

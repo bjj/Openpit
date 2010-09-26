@@ -21,7 +21,8 @@ object Window {
 
     // XXX I wanted an insertion-sorting collection based on Z depth
     // but I didn't find it offhand
-    val layers = Array(TerrainLayer, GlassLayer)
+    import org.openpit.ui.hud.Crosshair
+    val layers = Array(TerrainLayer, GlassLayer, Crosshair)
 
     def paint() {
         import console.FPS

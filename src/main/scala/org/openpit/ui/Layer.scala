@@ -14,11 +14,19 @@ object Layer {
 
 abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
     var visible = true
+    var displayList = 0
 
     def compare(that: Layer) = this.z - that.z
 
     def update()
     def paint()
+
+    def replace(index: Int) {
+        val oldList = displayList
+        displayList = index
+        if (oldList != 0)
+                glDeleteLists(oldList, 1)
+    }
 
     def act() {
         var running = true
@@ -33,8 +41,6 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
 }
 
 abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
-    var displayList = 0
-
     def paint() {
         import org.openpit.ui.Projection
 
@@ -52,8 +58,6 @@ abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
 }
 
 abstract class Layer2d(zz: Int) extends Layer(zz) {
-    var displayList = 0
-
     def paint() {
         import org.openpit.ui.Projection
 
