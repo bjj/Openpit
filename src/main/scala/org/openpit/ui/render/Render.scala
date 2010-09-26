@@ -5,9 +5,11 @@ import org.lwjgl.util.glu._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
+import org.openpit.util.ImplicitGL._
 import org.openpit.ui.Texture
 import org.openpit.world._
 import org.openpit.world.blocks._
+import render.Camera
 
 object Render {
 
@@ -108,6 +110,16 @@ object Render {
     lazy val translucentDisplayList = makeDisplayList(renderTranslucentBlock)
 
     def render() {
+	glClear(GL_COLOR_BUFFER_BIT |
+		GL_STENCIL_BUFFER_BIT |
+		GL_DEPTH_BUFFER_BIT)
+
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	// view frustrum should track fog setup
+	GLU.gluPerspective(40, aspect, 0.5f, 100)
+	Camera.look()
+
 	glCallList(opaqueDisplayList)
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -115,13 +127,22 @@ object Render {
 	glDisable(GL_BLEND)
     }
 
+    var aspect = 1.0f
+    def reshape(width: Int, height: Int) {
+	aspect = (width toFloat) / height
+    }
+
     def init() {
 	glEnable(GL_DEPTH_TEST)
 	glEnable(GL_CULL_FACE)
 	glEnable(GL_TEXTURE_2D)
-	//glShadeModel(GL_FLAT)
 	glShadeModel(GL_SMOOTH)
-	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
 	glClearColor(135f/255f, 205f/255f, 222f/255f, 1.0f)
+
+	glFogi(GL_FOG_MODE, GL_LINEAR)
+	glFog(GL_FOG_COLOR, Array(198f/255f, 215f/255f, 216f/255f, 1.0f))
+	glFogf(GL_FOG_START, 50f)
+	glFogf(GL_FOG_END, 100f)  // with linear, that's where it goes opaque
+	glEnable(GL_FOG)
     }
 }

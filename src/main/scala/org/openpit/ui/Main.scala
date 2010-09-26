@@ -38,6 +38,7 @@ object Main {
         Display.create()
         println("GL_RENDERER: " + glGetString(GL_RENDERER))
 
+	Render.reshape(width, height)
 	Render.init()
 
 	Keyboard.create()
@@ -74,15 +75,6 @@ object Main {
     def render() {
 	if (Display.isVisible()) {
 	    Display.sync(framerate)
-	    glClear(GL_COLOR_BUFFER_BIT |
-			 GL_STENCIL_BUFFER_BIT |
-			 GL_DEPTH_BUFFER_BIT)
-
-	    glMatrixMode(GL_PROJECTION)
-	    glLoadIdentity()
-	    GLU.gluPerspective(40, (width toFloat) / height, 0.5f, 50)
-
-	    Camera.look()
 	    Render.render()
 	    Display.update()
 	    FPS ! FPS.Frame
