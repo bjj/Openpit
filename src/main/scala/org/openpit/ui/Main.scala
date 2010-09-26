@@ -1,45 +1,29 @@
 package org.openpit.ui
 
-import org.lwjgl.Sys
+import org.lwjgl.opengl.Display
 import org.lwjgl.input.{Keyboard, Mouse}
-import org.lwjgl.opengl.{Display, DisplayMode}
-import org.lwjgl.opengl.GL11._
-import org.lwjgl.util.glu._
 
-import org.openpit.ui.render._
 import org.openpit.ui.console.FPS
 import org.openpit.world.World
-import org.openpit.world.blocks._
 
 object Main {
     var finished = false
-    def framerate = 60
-    def width = 800
-    def height = 450
 
     def main(args: Array[String]) {
 
 	init()
 	while (!finished) {
 	    input()
-	    render()
+	    Window.paint()
 	}
 	cleanup()
 	exit(0)
     }
 
     def init() {
+	Window.init()
 	World.init()
-
-        Display.setDisplayMode(new DisplayMode(width, height))
-        Display.setTitle("Openpit")
-        //Display.setVSyncEnabled(true)
-        Display.setFullscreen(false)
-        Display.create()
-        println("GL_RENDERER: " + glGetString(GL_RENDERER))
-
-	Render.reshape(width, height)
-	Render.init()
+	Window.update() // XXX should be Layers.update() or something
 
 	Keyboard.create()
 	Mouse.create()
@@ -61,6 +45,7 @@ object Main {
 	    println("exit clicked")
 	}
 
+	import org.openpit.ui.Camera
 	Camera.update(-Mouse.getDX * 0.3f, Mouse.getDY * 0.3f)
 
 	if (Keyboard.isKeyDown(Keyboard.KEY_A)) Camera.strafe(-0.3)
@@ -70,16 +55,5 @@ object Main {
 
 	if (Keyboard.isKeyDown(Keyboard.KEY_Q)) Camera.update(10, 0)
 	if (Keyboard.isKeyDown(Keyboard.KEY_E)) Camera.update(-10, 0)
-    }
-
-    def render() {
-	if (Display.isVisible()) {
-	    Display.sync(framerate)
-	    Render.render()
-	    Display.update()
-	    FPS ! FPS.Frame
-	} else {
-	    Thread.sleep(100)
-	}
     }
 }
