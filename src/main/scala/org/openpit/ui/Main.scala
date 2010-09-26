@@ -11,49 +11,49 @@ object Main {
 
     def main(args: Array[String]) {
 
-	init()
-	while (!finished) {
-	    input()
-	    Window.paint()
-	}
-	cleanup()
-	exit(0)
+        init()
+        while (!finished) {
+            input()
+            Window.paint()
+        }
+        cleanup()
+        exit(0)
     }
 
     def init() {
-	Window.init()
-	World.init()
-	Window.update() // XXX should be Layers.update() or something
+        Window.init()
+        World.init()
+        Window.update() // XXX should be Layers.update() or something
 
-	Keyboard.create()
-	Mouse.create()
-	Mouse.setGrabbed(true)
+        Keyboard.create()
+        Mouse.create()
+        Mouse.setGrabbed(true)
 
-	FPS.start()
+        FPS.start()
     }
 
     def cleanup() {
-	Mouse.setGrabbed(false)
+        Mouse.setGrabbed(false)
     }
 
     def input() {
-	if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-	    finished = true
-	    println("esc hit")
-	} else if (Display.isCloseRequested()) {
-	    finished = true
-	    println("exit clicked")
-	}
+        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+            finished = true
+            println("esc hit")
+        } else if (Display.isCloseRequested()) {
+            finished = true
+            println("exit clicked")
+        }
 
-	import org.openpit.ui.Camera
-	Camera.update(-Mouse.getDX * 0.3f, Mouse.getDY * 0.3f)
+        import org.openpit.ui.Camera
+        Camera.update(-Mouse.getDX * 0.3f, Mouse.getDY * 0.3f)
 
-	if (Keyboard.isKeyDown(Keyboard.KEY_A)) Camera.strafe(-0.3)
-	if (Keyboard.isKeyDown(Keyboard.KEY_S)) Camera.walk(-0.3)
-	if (Keyboard.isKeyDown(Keyboard.KEY_D)) Camera.strafe(0.3)
-	if (Keyboard.isKeyDown(Keyboard.KEY_W)) Camera.walk(0.3)
+        if (Keyboard.isKeyDown(Keyboard.KEY_A)) Camera.strafe(-0.3)
+        if (Keyboard.isKeyDown(Keyboard.KEY_S)) Camera.walk(-0.3)
+        if (Keyboard.isKeyDown(Keyboard.KEY_D)) Camera.strafe(0.3)
+        if (Keyboard.isKeyDown(Keyboard.KEY_W)) Camera.walk(0.3)
 
-	if (Keyboard.isKeyDown(Keyboard.KEY_Q)) Camera.update(10, 0)
-	if (Keyboard.isKeyDown(Keyboard.KEY_E)) Camera.update(-10, 0)
+        if (Keyboard.isKeyDown(Keyboard.KEY_Q)) Camera.update(10, 0)
+        if (Keyboard.isKeyDown(Keyboard.KEY_E)) Camera.update(-10, 0)
     }
 }

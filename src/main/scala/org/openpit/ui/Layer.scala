@@ -21,14 +21,14 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
     def paint()
 
     def act() {
-	var running = true
+        var running = true
 
-	while (running) {
-	    receive {
-		case Layer.Update => update()
-		case Layer.Shutdown => running = false
-	    }
-	}
+        while (running) {
+            receive {
+                case Layer.Update => update()
+                case Layer.Shutdown => running = false
+            }
+        }
     }
 }
 
@@ -36,18 +36,18 @@ abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
     var displayList = 0
 
     def paint() {
-	import org.openpit.ui.Projection
+        import org.openpit.ui.Projection
 
-	if (displayList != 0) {
-	    Projection.perspective()
-	    if (blend) {
-		glEnable(GL_BLEND)
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	    }
-	    glCallList(displayList)
-	    if (blend)
-		glDisable(GL_BLEND)
-	}
+        if (displayList != 0) {
+            Projection.perspective()
+            if (blend) {
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            }
+            glCallList(displayList)
+            if (blend)
+                glDisable(GL_BLEND)
+        }
     }
 }
 
@@ -55,14 +55,14 @@ abstract class Layer2d(zz: Int) extends Layer(zz) {
     var displayList = 0
 
     def paint() {
-	import org.openpit.ui.Projection
+        import org.openpit.ui.Projection
 
-	if (displayList != 0) {
-	    Projection.ortho()
-	    glEnable(GL_BLEND)
-	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	    glCallList(displayList)
-	    glDisable(GL_BLEND)
-	}
+        if (displayList != 0) {
+            Projection.ortho()
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            glCallList(displayList)
+            glDisable(GL_BLEND)
+        }
     }
 }

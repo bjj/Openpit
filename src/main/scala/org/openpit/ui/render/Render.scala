@@ -13,56 +13,56 @@ import org.openpit.world.blocks._
 object Render {
 
     def cube(loc: Vec3i, top: Vec2f, side: Vec2f, bot: Vec2f) {
-	var u = top.x
-	var v = top.y
-	var U = u + 1f/16f
-	var V = v + 1f/16f
-	val x = loc.x
-	val y = loc.y
-	val z = loc.z
-	val X = x + 1
-	val Y = y + 1
-	val Z = z - 1
+        var u = top.x
+        var v = top.y
+        var U = u + 1f/16f
+        var V = v + 1f/16f
+        val x = loc.x
+        val y = loc.y
+        val z = loc.z
+        val X = x + 1
+        val Y = y + 1
+        val Z = z - 1
 
-	glTexCoord2f(u, V); glVertex3i(x,Y,z)
-	glTexCoord2f(u, v); glVertex3i(x,y,z)
-	glTexCoord2f(U, v); glVertex3i(X,y,z)
-	glTexCoord2f(U, V); glVertex3i(X,Y,z)
+        glTexCoord2f(u, V); glVertex3i(x,Y,z)
+        glTexCoord2f(u, v); glVertex3i(x,y,z)
+        glTexCoord2f(U, v); glVertex3i(X,y,z)
+        glTexCoord2f(U, V); glVertex3i(X,Y,z)
 
-	u = side.x
-	v = side.y
-	U = u + 1f/16f
-	V = v + 1f/16f
+        u = side.x
+        v = side.y
+        U = u + 1f/16f
+        V = v + 1f/16f
 
-	glTexCoord2f(u, v); glVertex3i(x,y,z)
-	glTexCoord2f(u, V); glVertex3i(x,y,Z)
-	glTexCoord2f(U, V); glVertex3i(X,y,Z)
-	glTexCoord2f(U, v); glVertex3i(X,y,z)
+        glTexCoord2f(u, v); glVertex3i(x,y,z)
+        glTexCoord2f(u, V); glVertex3i(x,y,Z)
+        glTexCoord2f(U, V); glVertex3i(X,y,Z)
+        glTexCoord2f(U, v); glVertex3i(X,y,z)
 
-	glTexCoord2f(U, v); glVertex3i(X,y,z)
-	glTexCoord2f(U, V); glVertex3i(X,y,Z)
-	glTexCoord2f(u, V); glVertex3i(X,Y,Z)
-	glTexCoord2f(u, v); glVertex3i(X,Y,z)
+        glTexCoord2f(U, v); glVertex3i(X,y,z)
+        glTexCoord2f(U, V); glVertex3i(X,y,Z)
+        glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+        glTexCoord2f(u, v); glVertex3i(X,Y,z)
 
-	glTexCoord2f(u, v); glVertex3i(X,Y,z)
-	glTexCoord2f(u, V); glVertex3i(X,Y,Z)
-	glTexCoord2f(U, V); glVertex3i(x,Y,Z)
-	glTexCoord2f(U, v); glVertex3i(x,Y,z)
+        glTexCoord2f(u, v); glVertex3i(X,Y,z)
+        glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+        glTexCoord2f(U, V); glVertex3i(x,Y,Z)
+        glTexCoord2f(U, v); glVertex3i(x,Y,z)
 
-	glTexCoord2f(U, v); glVertex3i(x,Y,z)
-	glTexCoord2f(U, V); glVertex3i(x,Y,Z)
-	glTexCoord2f(u, V); glVertex3i(x,y,Z)
-	glTexCoord2f(u, v); glVertex3i(x,y,z)
+        glTexCoord2f(U, v); glVertex3i(x,Y,z)
+        glTexCoord2f(U, V); glVertex3i(x,Y,Z)
+        glTexCoord2f(u, V); glVertex3i(x,y,Z)
+        glTexCoord2f(u, v); glVertex3i(x,y,z)
 
-	u = bot.x
-	v = bot.y
-	U = u + 1f/16f
-	V = v + 1f/16f
+        u = bot.x
+        v = bot.y
+        U = u + 1f/16f
+        V = v + 1f/16f
 
-	glTexCoord2f(U, V); glVertex3i(X,y,Z)
-	glTexCoord2f(U, v); glVertex3i(x,y,Z)
-	glTexCoord2f(u, v); glVertex3i(x,Y,Z)
-	glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+        glTexCoord2f(U, V); glVertex3i(X,y,Z)
+        glTexCoord2f(U, v); glVertex3i(x,y,Z)
+        glTexCoord2f(u, v); glVertex3i(x,Y,Z)
+        glTexCoord2f(u, V); glVertex3i(X,Y,Z)
     }
 
     val grassTop = Vec2f(0f, 0f)
@@ -78,31 +78,31 @@ object Render {
     def cobblestone(loc: Vec3i) { cube(loc, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
 
     def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
-	case Grass() => grass(l)
-	case Stone() => stone(l)
-	case Cobblestone() => cobblestone(l)
-	case _ => Unit
+        case Grass() => grass(l)
+        case Stone() => stone(l)
+        case Cobblestone() => cobblestone(l)
+        case _ => Unit
     }
 
     def renderTranslucentBlock(l: Vec3i, b: Block) = b match {
-	case Glass() => glass(l)
-	case _ => Unit
+        case Glass() => glass(l)
+        case _ => Unit
     }
 
     def renderWorld(s: (Vec3i, Block)=>Unit) {
-	Texture.Terrain.bind
-	glColor4f(1,1,1,1)
-	glBegin(GL_QUADS)
-	World.foreach(s)
-	glEnd()
+        Texture.Terrain.bind
+        glColor4f(1,1,1,1)
+        glBegin(GL_QUADS)
+        World.foreach(s)
+        glEnd()
     }
 
     def makeDisplayList(s: (Vec3i, Block) => Unit) = {
-	val index = glGenLists(1)
-	glNewList(index, GL_COMPILE)
-	renderWorld(s)
-	glEndList()
-	index
+        val index = glGenLists(1)
+        glNewList(index, GL_COMPILE)
+        renderWorld(s)
+        glEndList()
+        index
     }
 
     def render() {

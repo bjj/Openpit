@@ -7,25 +7,25 @@ object Projection {
     var current: () => Unit = null
 
     private def setup_ortho() {
-	glOrtho(0, Window.width, Window.height, 0, 0, 1)
+        glOrtho(0, Window.width, Window.height, 0, 0, 1)
     }
 
     private def setup_perspective() {
-	import org.openpit.ui.Camera
-	// view frustrum should track fog setup
-	GLU.gluPerspective(40, Window.aspect, 0.5f, 100)
-	Camera.look()
+        import org.openpit.ui.Camera
+        // view frustrum should track fog setup
+        GLU.gluPerspective(40, Window.aspect, 0.5f, 100)
+        Camera.look()
     }
 
     def set(way: () => Unit) {
-	if (way != current) {
-	    glMatrixMode(GL_MODELVIEW)
-	    glLoadIdentity()
-	    glMatrixMode(GL_PROJECTION)
-	    glLoadIdentity()
-	    current = way
-	    current()
-	}
+        if (way != current) {
+            glMatrixMode(GL_MODELVIEW)
+            glLoadIdentity()
+            glMatrixMode(GL_PROJECTION)
+            glLoadIdentity()
+            current = way
+            current()
+        }
     }
 
     def ortho() { set(setup_ortho) }
