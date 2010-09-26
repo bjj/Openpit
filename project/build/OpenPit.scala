@@ -2,5 +2,6 @@ import sbt._
 
 class OpenPitProject(info: ProjectInfo) extends LWJGLProject(info)
 {
-	lazy val hi = task { println("Hello World"); None }
+    override def compileOptions = super.compileOptions ++
+	Seq(Unchecked, Optimize)
 }
