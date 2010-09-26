@@ -50,6 +50,9 @@ abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) {
 
     def apply(p: Vec3i): T
     def update(p: Vec3i, value: T): Unit
+    def update(x: Int, y: Int, z: Int, value: T) {
+	update(ConstVec3i(x,y,z), value)
+    }
     def foreach(s: (Vec3i, T) => Unit)
 }
 
