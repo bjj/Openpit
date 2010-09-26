@@ -114,4 +114,14 @@ object Render {
 	glCallList(translucentDisplayList)
 	glDisable(GL_BLEND)
     }
+
+    def init() {
+	glEnable(GL_DEPTH_TEST)
+	glEnable(GL_CULL_FACE)
+	glEnable(GL_TEXTURE_2D)
+	//glShadeModel(GL_FLAT)
+	glShadeModel(GL_SMOOTH)
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+	glClearColor(135f/255f, 205f/255f, 222f/255f, 1.0f)
+    }
 }

@@ -18,16 +18,6 @@ object Main {
     def height = 450
 
     def main(args: Array[String]) {
-	World.plain
-	World.put(10,10,11, Stone())
-	World.put(12,10,11, Stone())
-	World.put(11,10,15, Stone())
-	for (x <- 20 to 30) World.put(x, 20, 11, Cobblestone())
-	for (x <- 22 to 28) World.put(x, 20, 12, Cobblestone())
-
-	for (y <- 20 until 30; z <- 11 until 15) {
-	    World.put(15, y, z, Glass())
-	}
 
 	init()
 	while (!finished) {
@@ -39,20 +29,16 @@ object Main {
     }
 
     def init() {
-        println("starting!")
+	World.init()
+
         Display.setDisplayMode(new DisplayMode(width, height))
         Display.setTitle("Openpit")
         //Display.setVSyncEnabled(true)
         Display.setFullscreen(false)
         Display.create()
         println("GL_RENDERER: " + glGetString(GL_RENDERER))
-	glEnable(GL_DEPTH_TEST)
-	glEnable(GL_CULL_FACE)
-	glEnable(GL_TEXTURE_2D)
-	//glShadeModel(GL_FLAT)
-	glShadeModel(GL_SMOOTH)
-	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
-        glClearColor(135f/255f, 205f/255f, 222f/255f, 1.0f)
+
+	Render.init()
 
 	Keyboard.create()
 	Mouse.create()
