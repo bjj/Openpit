@@ -16,9 +16,10 @@ object World extends Octree[Block](Vec3i(0,0,0), 2) {
 	    this(x, y, z) = Grass()
 	this(10,10,11) = Stone()
 	this(12,10,11) = Stone()
-	this(11,10,15) = Stone()
 	for (x <- 20 to 30) this(x, 20, 11) = Cobblestone()
 	for (x <- 22 to 28) this(x, 20, 12) = Cobblestone()
+	for (x <- 20 to 30) this(x, 50, 11) = Stone()
+	for (x <- 22 to 28) this(x, 50, 12) = Stone()
 	for (y <- 20 until 30; z <- 11 until 15)
 	    this(15, y, z) = Glass()
     }
