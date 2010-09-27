@@ -87,8 +87,8 @@ case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
         while (!encloses(p)) wrap(p)
         val i = indexOf(p)
         children(i) match {
-            case null     => grow(i).update(p, value)
-            case c: Child => c.update(p, value)
+            case null => grow(i).update(p, value)
+            case c    => c.update(p, value)
         }
     }
 
