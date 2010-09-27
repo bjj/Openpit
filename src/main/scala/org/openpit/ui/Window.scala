@@ -29,7 +29,7 @@ object Window {
         import console.FPS
 
         if (Display.isVisible()) {
-            Display.sync(framerate)
+            //Display.sync(framerate)
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_STENCIL_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT)
