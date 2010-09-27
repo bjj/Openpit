@@ -6,7 +6,6 @@ import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
 import org.openpit.util.ImplicitGL._
-import org.openpit.ui.Texture
 import org.openpit.world._
 import org.openpit.world.blocks._
 
