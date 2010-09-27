@@ -1,7 +1,11 @@
+Install any version of scala with your system's port/package system.  sbt
+will download any other scala versions that are needed.  You can build
+under Linux or FreeBSD and run the result on Windows.
+
 Unpack lwjgl-2.5 in lib
     http://sourceforge.net/projects/java-game-lib/files/Official%20Releases/LWJGL%202.5/
 
-Unpack simplex3d in lib (currently buffers not used)
+Unpack simplex3d in lib (binary components only) (currently buffers not used)
     http://code.google.com/p/simplex3d/downloads/list
 
 stuff in my lib:
@@ -23,7 +27,6 @@ stuff in my lib:
     lib/simplex3d/simplex3d-math-int.jar
     lib/simplex3d/COPYING
     lib/simplex3d/Readme.txt
-    lib/scala-library.jar
     lib/lwjgl-2.5
     lib/lwjgl-2.5/native
     lib/lwjgl-2.5/native/linux
