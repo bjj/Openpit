@@ -9,6 +9,7 @@ import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
 import org.openpit.util.ImplicitGL._
+import org.openpit.util.glErrors
 
 
 object Window {
@@ -35,8 +36,15 @@ object Window {
             for (layer <- layers if layer.visible) layer.paint()
             Display.update()
             FPS ! FPS.Frame
+            checkErrors()
         } else {
             Thread.sleep(100)
+        }
+    }
+
+    def checkErrors() {
+        for (err <- glErrors) {
+            printf("GL ERROR: %s\n", GLU.gluErrorString(err))
         }
     }
 
