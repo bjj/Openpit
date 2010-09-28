@@ -1,6 +1,7 @@
 import sbt._
+import de.element34.sbteclipsify._
 
-class OpenPitProject(info: ProjectInfo) extends LWJGLProject(info)
+class OpenPitProject(info: ProjectInfo) extends LWJGLProject(info) with Eclipsify
 {
     override def compileOptions = super.compileOptions ++
         Seq(Unchecked, Optimize)
