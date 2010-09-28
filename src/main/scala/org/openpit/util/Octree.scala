@@ -1,5 +1,7 @@
 package org.openpit.util
 
+import collection.Traversable
+
 import simplex3d.math.intm._
 import simplex3d.math.intm.IntMath._
 
@@ -19,7 +21,7 @@ import simplex3d.math.intm.IntMath._
                         (-1,-1, 0), (0,-1, 0), (-1,0, 0), (0, 0, 0)
 */
 
-abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) {
+abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends Traversable[T] {
 
     type Child
 
@@ -53,7 +55,8 @@ abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) {
     def update(x: Int, y: Int, z: Int, value: T) {
         update(ConstVec3i(x,y,z), value)
     }
-    def foreach(s: (Vec3i, T) => Unit)
+    def foreach[U](f: (Vec3i, T) => U)
+    def foreach[U](f: (T) => U)
 }
 
 case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
@@ -92,8 +95,10 @@ case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
         }
     }
 
-    def foreach(s: (Vec3i, T) => Unit) =
-        for (c <- children if c != null) c.foreach(s)
+    def foreach[U](f: (Vec3i, T) => U) =
+        for (c <- children if c != null) c.foreach(f)
+    def foreach[U](f: (T) => U) =
+        for (c <- children if c != null) c.foreach(f)
 }
 
 private object LeafOffsets {
@@ -119,8 +124,12 @@ case class OctreeLeaf[T:Manifest] (c: Vec3i) extends IOctree[T](c, 1) {
     def apply(p: Vec3i): T = children(indexOf(p))
     def update(p: Vec3i, value: T) { children(indexOf(p)) = value }
 
-    def foreach(s: (Vec3i, T) => Unit) =
+    def foreach[U](f: (Vec3i, T) => U) =
         for (ci <- 0 until 8 if children(ci) != null) {
-            s(center + LeafOffsets(ci), children(ci))
+            f(center + LeafOffsets(ci), children(ci))
+        }
+    def foreach[U](f: (T) => U) =
+        for (ci <- 0 until 8 if children(ci) != null) {
+            f(children(ci))
         }
 }
