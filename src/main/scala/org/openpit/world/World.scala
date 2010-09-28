@@ -6,7 +6,7 @@ import org.openpit.util._
 
 object World extends Octree[Block](Vec3i(0,0,0), 2) {
 
-    def init() {
+    def generate() {
         plain()
     }
 

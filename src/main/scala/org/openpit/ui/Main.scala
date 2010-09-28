@@ -22,7 +22,7 @@ object Main {
 
     def init() {
         Window.init()
-        World.init()
+        World.generate()
         Window.update() // XXX should be Layers.update() or something
 
         Keyboard.create()
