@@ -11,11 +11,14 @@ import org.openpit.world.blocks._
 
 object Render {
 
+    def occluded(loc: Vec3i, dir: ConstVec3i) = {
+        World.get(loc + dir).getOrElse(Air) match {
+                case Air => false
+                case Glass() => false // glass should self-occlude
+                case _ => true
+        }
+    }
     def cube(loc: Vec3i, top: Vec2f, side: Vec2f, bot: Vec2f) {
-        var u = top.x
-        var v = top.y
-        var U = u + 1f/16f
-        var V = v + 1f/16f
         val x = loc.x
         val y = loc.y
         val z = loc.z
@@ -23,45 +26,62 @@ object Render {
         val Y = y + 1
         val Z = z - 1
 
-        glTexCoord2f(u, V); glVertex3i(x,Y,z)
-        glTexCoord2f(u, v); glVertex3i(x,y,z)
-        glTexCoord2f(U, v); glVertex3i(X,y,z)
-        glTexCoord2f(U, V); glVertex3i(X,Y,z)
+        var u = top.x
+        var v = top.y
+        var U = u + 1f/16f
+        var V = v + 1f/16f
+
+        if (!occluded(loc, ConstVec3i(0,0,1))) {
+            glTexCoord2f(u, V); glVertex3i(x,Y,z)
+            glTexCoord2f(u, v); glVertex3i(x,y,z)
+            glTexCoord2f(U, v); glVertex3i(X,y,z)
+            glTexCoord2f(U, V); glVertex3i(X,Y,z)
+        }
 
         u = side.x
         v = side.y
         U = u + 1f/16f
         V = v + 1f/16f
 
-        glTexCoord2f(u, v); glVertex3i(x,y,z)
-        glTexCoord2f(u, V); glVertex3i(x,y,Z)
-        glTexCoord2f(U, V); glVertex3i(X,y,Z)
-        glTexCoord2f(U, v); glVertex3i(X,y,z)
+        if (!occluded(loc, ConstVec3i(0,-1,0))) {
+            glTexCoord2f(u, v); glVertex3i(x,y,z)
+            glTexCoord2f(u, V); glVertex3i(x,y,Z)
+            glTexCoord2f(U, V); glVertex3i(X,y,Z)
+            glTexCoord2f(U, v); glVertex3i(X,y,z)
+        }
 
-        glTexCoord2f(U, v); glVertex3i(X,y,z)
-        glTexCoord2f(U, V); glVertex3i(X,y,Z)
-        glTexCoord2f(u, V); glVertex3i(X,Y,Z)
-        glTexCoord2f(u, v); glVertex3i(X,Y,z)
+        if (!occluded(loc, ConstVec3i(1,0,0))) {
+            glTexCoord2f(U, v); glVertex3i(X,y,z)
+            glTexCoord2f(U, V); glVertex3i(X,y,Z)
+            glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+            glTexCoord2f(u, v); glVertex3i(X,Y,z)
+        }
 
-        glTexCoord2f(u, v); glVertex3i(X,Y,z)
-        glTexCoord2f(u, V); glVertex3i(X,Y,Z)
-        glTexCoord2f(U, V); glVertex3i(x,Y,Z)
-        glTexCoord2f(U, v); glVertex3i(x,Y,z)
+        if (!occluded(loc, ConstVec3i(0,1,0))) {
+            glTexCoord2f(u, v); glVertex3i(X,Y,z)
+            glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+            glTexCoord2f(U, V); glVertex3i(x,Y,Z)
+            glTexCoord2f(U, v); glVertex3i(x,Y,z)
+        }
 
-        glTexCoord2f(U, v); glVertex3i(x,Y,z)
-        glTexCoord2f(U, V); glVertex3i(x,Y,Z)
-        glTexCoord2f(u, V); glVertex3i(x,y,Z)
-        glTexCoord2f(u, v); glVertex3i(x,y,z)
+        if (!occluded(loc, ConstVec3i(-1,0,0))) {
+            glTexCoord2f(U, v); glVertex3i(x,Y,z)
+            glTexCoord2f(U, V); glVertex3i(x,Y,Z)
+            glTexCoord2f(u, V); glVertex3i(x,y,Z)
+            glTexCoord2f(u, v); glVertex3i(x,y,z)
+        }
 
-        u = bot.x
-        v = bot.y
-        U = u + 1f/16f
-        V = v + 1f/16f
+        if (!occluded(loc, ConstVec3i(0,0,-1))) {
+            u = bot.x
+            v = bot.y
+            U = u + 1f/16f
+            V = v + 1f/16f
 
-        glTexCoord2f(U, V); glVertex3i(X,y,Z)
-        glTexCoord2f(U, v); glVertex3i(x,y,Z)
-        glTexCoord2f(u, v); glVertex3i(x,Y,Z)
-        glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+            glTexCoord2f(U, V); glVertex3i(X,y,Z)
+            glTexCoord2f(U, v); glVertex3i(x,y,Z)
+            glTexCoord2f(u, v); glVertex3i(x,Y,Z)
+            glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+        }
     }
 
     val grassTop = Vec2f(0f, 0f)

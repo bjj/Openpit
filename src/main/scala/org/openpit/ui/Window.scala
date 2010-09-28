@@ -29,12 +29,15 @@ object Window {
         import console.FPS
 
         if (Display.isVisible()) {
+            // Uncomment this sync to ignore the repaint speed
             //Display.sync(framerate)
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_STENCIL_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT)
             for (layer <- layers if layer.visible) layer.paint()
             Display.update()
+            // Uncomment this update to measure the redraw speed
+            //update()
             FPS ! FPS.Frame
             checkErrors()
         } else {

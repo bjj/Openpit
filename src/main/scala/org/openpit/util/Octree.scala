@@ -51,6 +51,7 @@ abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends 
         lerp(indexOf(p), dist)
 
     def apply(p: Vec3i): T
+    def get(p: Vec3i): Option[T]
     def update(p: Vec3i, value: T): Unit
     def update(x: Int, y: Int, z: Int, value: T) {
         update(ConstVec3i(x,y,z), value)
@@ -65,6 +66,10 @@ case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
 
     def makeChildren = new Array[Child](8)
 
+    def get(p: Vec3i): Option[T] = children(indexOf(p)) match {
+        case null => None
+        case c    => c.get(p)
+    }
     def apply(p: Vec3i): T = children(indexOf(p))(p)
 
     // Create a new child (call only if needed)
@@ -121,6 +126,10 @@ case class OctreeLeaf[T:Manifest] (c: Vec3i) extends IOctree[T](c, 1) {
 
     def makeChildren = new Array[Child](8)
 
+    def get(p: Vec3i): Option[T] = children(indexOf(p)) match {
+        case null => None
+        case c    => Some(c)
+    }
     def apply(p: Vec3i): T = children(indexOf(p))
     def update(p: Vec3i, value: T) { children(indexOf(p)) = value }
 
