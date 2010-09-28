@@ -14,20 +14,17 @@ object Layer {
 
 abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
     var visible = true
-    var displayList = 0
+    lazy val displayList = glGenLists(1)
 
     def compare(that: Layer) = this.z - that.z
 
     def update()
     def paint()
 
-    def replace(index: Int) {
-        val oldList = displayList
-        displayList = index
-        if (oldList != 0)
-                glDeleteLists(oldList, 1)
-    }
-
+    // XXX This can't be multithreaded with DisplayLists, but it could
+    // after a conversion to VBOs.  If some layers still draw with
+    // DisplayLists this would have to have both a threaded update and
+    // "invalidate and re-render on demand" flavor
     def act() {
         var running = true
 

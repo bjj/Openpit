@@ -104,6 +104,12 @@ object Render {
         index
     }
 
+    def updateDisplayList(list: Int, s: (Vec3i, Block) => Unit) = {
+        glNewList(list, GL_COMPILE)
+        renderWorld(s)
+        glEndList()
+    }
+
     def render() {
     }
 

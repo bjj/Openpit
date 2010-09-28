@@ -11,8 +11,7 @@ object Crosshair extends Layer2d(1000) {
     val radius = 16f   // XXX ortho setup to draw in screen pix -- should crosshair scale?
 
     def update() {
-        val index = glGenLists(1)
-        glNewList(index, GL_COMPILE)
+        glNewList(displayList, GL_COMPILE)
         Texture.Crosshair.bind()
         glColor4f(1,1,1,1)
         glBegin(GL_QUADS)
@@ -24,6 +23,5 @@ object Crosshair extends Layer2d(1000) {
         glTexCoord2f(1, 0); glVertex3f(x + radius, y - radius, 0)
         glEnd()
         glEndList()
-        replace(index)
     }
 }
