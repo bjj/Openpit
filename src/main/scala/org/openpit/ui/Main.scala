@@ -8,7 +8,6 @@ import org.openpit.ui.console.FPS
 import org.openpit.world.World
 
 object Main {
-    val mouseSensitivity = 3f
     val unitsPerSecond = 18.0
     lazy val ticksPerSecond : Double = Sys.getTimerResolution()
 
@@ -19,7 +18,7 @@ object Main {
 
         init()
         while (!finished) {
-            input()
+            handleInput()
             Window.paint()
         }
         cleanup()
@@ -30,11 +29,7 @@ object Main {
         Window.init()
         World.generate()
         Window.update() // XXX should be Layers.update() or something
-
-        Keyboard.create()
-        Mouse.create()
-        Mouse.setGrabbed(true)
-
+        Input.init()
         FPS.start()
 
         lastTime = getCurrentTime()
@@ -45,18 +40,10 @@ object Main {
     }
  
     def cleanup() {
-        Mouse.setGrabbed(false)
+        Input.cleanup()
     }
 
-    def input() {
-        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-            finished = true
-            println("esc hit")
-        } else if (Display.isCloseRequested()) {
-            finished = true
-            println("exit clicked")
-        }
-
+    def handleInput() {
         var currentTime = getCurrentTime()
         var elapsedTime = currentTime - lastTime
         lastTime = currentTime
@@ -64,16 +51,15 @@ object Main {
         var movement = unitsPerSecond * elapsedTime
         var movementFloat = movement.toFloat
 
-        import org.openpit.ui.Camera
-        Camera.update(-Mouse.getDX * movementFloat * mouseSensitivity,
-                       Mouse.getDY * movementFloat * mouseSensitivity)
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_A)) Camera.strafe(-movement)
-        if (Keyboard.isKeyDown(Keyboard.KEY_S)) Camera.walk(-movement)
-        if (Keyboard.isKeyDown(Keyboard.KEY_D)) Camera.strafe(movement)
-        if (Keyboard.isKeyDown(Keyboard.KEY_W)) Camera.walk(movement)
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_Q)) Camera.update(movementFloat * mouseSensitivity, 0)
-        if (Keyboard.isKeyDown(Keyboard.KEY_E)) Camera.update(-movementFloat * mouseSensitivity, 0)
+        import Input._
+        input() match {
+            case Quit => finished = true
+            case Inventory => Unit
+            case Menu => Unit
+            case m: Move =>
+                Camera.update(m.yaw, m.pitch)
+                Camera.strafe(m.dx * movementFloat)
+                Camera.walk(m.dy * movementFloat)
+        }
     }
 }
