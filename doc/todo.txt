@@ -24,3 +24,7 @@ octree
 
     need to memoize certain properties (like "fully enclosed") to make good
     rendering decisions
+
+textures
+    accidentally rendered grass sides upside down, and that fringe
+    actually looks good going up the side of the next block..

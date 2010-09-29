@@ -24,7 +24,7 @@ object Render {
         val z = loc.z
         val X = x + 1
         val Y = y + 1
-        val Z = z - 1
+        val Z = z + 1
 
         var u = top.x
         var v = top.y
@@ -32,10 +32,10 @@ object Render {
         var V = v + 1f/16f
 
         if (!occluded(loc, ConstVec3i(0,0,1))) {
-            glTexCoord2f(u, V); glVertex3i(x,Y,z)
-            glTexCoord2f(u, v); glVertex3i(x,y,z)
-            glTexCoord2f(U, v); glVertex3i(X,y,z)
-            glTexCoord2f(U, V); glVertex3i(X,Y,z)
+            glTexCoord2f(u, V); glVertex3i(x,Y,Z)
+            glTexCoord2f(u, v); glVertex3i(x,y,Z)
+            glTexCoord2f(U, v); glVertex3i(X,y,Z)
+            glTexCoord2f(U, V); glVertex3i(X,Y,Z)
         }
 
         u = side.x
@@ -44,31 +44,31 @@ object Render {
         V = v + 1f/16f
 
         if (!occluded(loc, ConstVec3i(0,-1,0))) {
-            glTexCoord2f(u, v); glVertex3i(x,y,z)
-            glTexCoord2f(u, V); glVertex3i(x,y,Z)
-            glTexCoord2f(U, V); glVertex3i(X,y,Z)
-            glTexCoord2f(U, v); glVertex3i(X,y,z)
+            glTexCoord2f(u, v); glVertex3i(x,y,Z)
+            glTexCoord2f(u, V); glVertex3i(x,y,z)
+            glTexCoord2f(U, V); glVertex3i(X,y,z)
+            glTexCoord2f(U, v); glVertex3i(X,y,Z)
         }
 
         if (!occluded(loc, ConstVec3i(1,0,0))) {
-            glTexCoord2f(U, v); glVertex3i(X,y,z)
-            glTexCoord2f(U, V); glVertex3i(X,y,Z)
-            glTexCoord2f(u, V); glVertex3i(X,Y,Z)
-            glTexCoord2f(u, v); glVertex3i(X,Y,z)
+            glTexCoord2f(U, v); glVertex3i(X,y,Z)
+            glTexCoord2f(U, V); glVertex3i(X,y,z)
+            glTexCoord2f(u, V); glVertex3i(X,Y,z)
+            glTexCoord2f(u, v); glVertex3i(X,Y,Z)
         }
 
         if (!occluded(loc, ConstVec3i(0,1,0))) {
-            glTexCoord2f(u, v); glVertex3i(X,Y,z)
-            glTexCoord2f(u, V); glVertex3i(X,Y,Z)
-            glTexCoord2f(U, V); glVertex3i(x,Y,Z)
-            glTexCoord2f(U, v); glVertex3i(x,Y,z)
+            glTexCoord2f(u, v); glVertex3i(X,Y,Z)
+            glTexCoord2f(u, V); glVertex3i(X,Y,z)
+            glTexCoord2f(U, V); glVertex3i(x,Y,z)
+            glTexCoord2f(U, v); glVertex3i(x,Y,Z)
         }
 
         if (!occluded(loc, ConstVec3i(-1,0,0))) {
-            glTexCoord2f(U, v); glVertex3i(x,Y,z)
-            glTexCoord2f(U, V); glVertex3i(x,Y,Z)
-            glTexCoord2f(u, V); glVertex3i(x,y,Z)
-            glTexCoord2f(u, v); glVertex3i(x,y,z)
+            glTexCoord2f(U, v); glVertex3i(x,Y,Z)
+            glTexCoord2f(U, V); glVertex3i(x,Y,z)
+            glTexCoord2f(u, V); glVertex3i(x,y,z)
+            glTexCoord2f(u, v); glVertex3i(x,y,Z)
         }
 
         if (!occluded(loc, ConstVec3i(0,0,-1))) {
@@ -77,10 +77,10 @@ object Render {
             U = u + 1f/16f
             V = v + 1f/16f
 
-            glTexCoord2f(U, V); glVertex3i(X,y,Z)
-            glTexCoord2f(U, v); glVertex3i(x,y,Z)
-            glTexCoord2f(u, v); glVertex3i(x,Y,Z)
-            glTexCoord2f(u, V); glVertex3i(X,Y,Z)
+            glTexCoord2f(U, V); glVertex3i(X,y,z)
+            glTexCoord2f(U, v); glVertex3i(x,y,z)
+            glTexCoord2f(u, v); glVertex3i(x,Y,z)
+            glTexCoord2f(u, V); glVertex3i(X,Y,z)
         }
     }
 
