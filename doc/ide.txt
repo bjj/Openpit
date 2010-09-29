@@ -1,0 +1,15 @@
+== Eclipse Helios ==
+
+You can load this Scala project in Eclipse with Scala IDE.
+
+The version of Eclipse tested was Eclipse Helios. Add this update site to
+Eclipse to download the correct Scala IDE:
+
+http://download.scala-ide.org/nightly-update-helios-2.8.0.final
+
+Once everything is downloaded, run "sbt eclipse" in the main directory
+of the OpenPit project. This will create the directory structure that
+Eclipse looks for.
+
+Then you may go to Eclipse and use:
+  File -> Import -> [Expand General] Existing Projects into Workspace

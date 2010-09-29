@@ -5,3 +5,26 @@ opengl
     experiment with different combos of glTexParameteri with mipmaps
     generate 'nearest' own mipmaps?  yes, especially important with texture atlas
     "upgrade" from displaylists to vbos
+
+render distant terrain in a back buffer and use it as a skybox
+
+implement a skysphere with meaningful celestial behavior and recognizable
+constellations (not necessarly Earth's)
+
+octree
+    right now the tree bottoms out in nulls which imply "air" but it
+    should be possible for any level of the tree to be filled with any
+    block type (think dirt, stone, water)
+
+    the "leaf" level could be bigger than 2x2x2.  it might be more efficient
+    for it to be much bigger, 4x4x4, 8x8x8, ...
+
+    it needs various bounded iterators, by volume, by type.  filter should
+    be passed in for the best possible pruning.
+
+    need to memoize certain properties (like "fully enclosed") to make good
+    rendering decisions
+
+textures
+    accidentally rendered grass sides upside down, and that fringe
+    actually looks good going up the side of the next block..
