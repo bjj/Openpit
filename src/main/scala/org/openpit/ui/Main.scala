@@ -13,7 +13,7 @@ object Main {
 
         init()
         while (!finished) {
-            input()
+            handleInput()
             Window.paint()
         }
         cleanup()
@@ -24,36 +24,24 @@ object Main {
         Window.init()
         World.generate()
         Window.update() // XXX should be Layers.update() or something
-
-        Keyboard.create()
-        Mouse.create()
-        Mouse.setGrabbed(true)
-
+        Input.init()
         FPS.start()
     }
 
     def cleanup() {
-        Mouse.setGrabbed(false)
+        Input.cleanup()
     }
 
-    def input() {
-        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-            finished = true
-            println("esc hit")
-        } else if (Display.isCloseRequested()) {
-            finished = true
-            println("exit clicked")
+    def handleInput() {
+        import Input._
+        input() match {
+            case Quit => finished = true
+            case Inventory => Unit
+            case Menu => Unit
+            case m: Move =>
+                Camera.update(m.yaw, m.pitch)
+                Camera.strafe(m.dx * 0.3f)
+                Camera.walk(m.dy * 0.3f)
         }
-
-        import org.openpit.ui.Camera
-        Camera.update(-Mouse.getDX * 0.3f, Mouse.getDY * 0.3f)
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_A)) Camera.strafe(-0.3)
-        if (Keyboard.isKeyDown(Keyboard.KEY_S)) Camera.walk(-0.3)
-        if (Keyboard.isKeyDown(Keyboard.KEY_D)) Camera.strafe(0.3)
-        if (Keyboard.isKeyDown(Keyboard.KEY_W)) Camera.walk(0.3)
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_Q)) Camera.update(10, 0)
-        if (Keyboard.isKeyDown(Keyboard.KEY_E)) Camera.update(-10, 0)
     }
 }
