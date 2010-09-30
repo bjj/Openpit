@@ -12,19 +12,19 @@ object OctreeSpec extends Properties("Octree") {
     import Generators._
 
     property("single storage") = forAll { (c: Vec3i, p: Vec3i, v: Int) =>
-        val o = new Octree[Int](c,2)
+        val o = new Octree[Int](c)
         o(p) = v
         o(p) == v
     }
 
     property("multiple storage") = {
-        val o = new Octree[Int](Vec3i(0,0,0), 2)
+        val o = new Octree[Int]
         forAll { (c: Vec3i, p: Vec3i, v: Int) => o(p) = v; o(p) == v }
     }
 
     // XXX can't use Int here because Octree uses "null" for "nonexist" :(
     property("foreach") = forAll { (c: Vec3i, s: Set[String] ) =>
-        val o = new Octree[String](c,2)
+        val o = new Octree[String](c)
         // Put the random set in random locations (locations ignored)
         val where = Arbitrary.arbitrary[Vec3i]
         for (i <- s) { o(where.sample.get) = i }

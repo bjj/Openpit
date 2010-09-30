@@ -5,28 +5,23 @@ import collection.Traversable
 import simplex3d.math.intm._
 import simplex3d.math.intm.IntMath._
 
-/*
-         6---7
-        /|  /|
-       4---5 |  z
-       | 2-|-3  | y
-       |/  |/   |/      In a leaf node, the block "named" with
-       0---1    o---x   integer coord 'center' is at 7 (essentially
-                        there is an implicit offset of 0.5,0.5,0.5)
-
-                        So an Octree with center x,y,z and radius r
-                        covers (x-r,y-r,z-r))..(x+(r-1),y+(r-1),z+(r-1))
-                        inclusive.  E.g. a leaf at 0,0,0 r=1 contains in order:
-                        (-1,-1,-1), (0,-1,-1), (-1,0,-1), (0, 0, -1)
-                        (-1,-1, 0), (0,-1, 0), (-1,0, 0), (0, 0, 0)
-*/
+/**
+ *       6---7
+ *      /|  /|
+ *     4---5 |  z
+ *     | 2-|-3  | y
+ *     |/  |/   |/      In a leaf node, the block "named" with
+ *     0---1    o---x   integer coord 'center' is at 7 (essentially
+ *                      there is an implicit offset of 0.5,0.5,0.5)
+ *
+ *                      So an Octree with center x,y,z and radius r
+ *                      covers (x-r,y-r,z-r))..(x+(r-1),y+(r-1),z+(r-1))
+ *                      inclusive.  E.g. a leaf at 0,0,0 r=1 contains in order:
+ *                      (-1,-1,-1), (0,-1,-1), (-1,0,-1), (0, 0, -1)
+ *                      (-1,-1, 0), (0,-1, 0), (-1,0, 0), (0, 0, 0)
+ */
 
 abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends Traversable[T] {
-
-    type Child
-
-    def makeChildren: Array[Child]
-    var children = makeChildren
 
     final def encloses(p: Vec3i) = {
         val d = p - center
@@ -51,6 +46,7 @@ abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends 
         lerp(indexOf(p), dist)
 
     def apply(p: Vec3i): T
+    def apply(x: Int, y: Int, z: Int): T = apply(ConstVec3i(x,y,z))
     def get(p: Vec3i): Option[T]
     def update(p: Vec3i, value: T): Unit
     def update(x: Int, y: Int, z: Int, value: T) {
@@ -60,11 +56,9 @@ abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends 
     def foreach[U](f: (T) => U)
 }
 
-case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
+case class OctreeNode[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
 
-    type Child = IOctree[T]
-
-    def makeChildren = new Array[Child](8)
+    val children = new Array[IOctree[T]](8)
 
     def get(p: Vec3i): Option[T] = children(indexOf(p)) match {
         case null => None
@@ -75,24 +69,17 @@ case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
     // Create a new child (call only if needed)
     protected def grow(index: Int) = {
         val newr = radius / 2
-        val child = if (newr == 1) new OctreeLeaf[T](lerp(index, newr))
-                              else new Octree[T](lerp(index, newr), newr)
+        val child = if (newr == 1) OctreeLeaf[T](lerp(index, newr))
+                              else OctreeNode[T](lerp(index, newr), newr)
         children(index) = child
         child
     }
 
-    // Wrap self in a larger enclosing Octree, moving toward p
-    protected def wrap(p: Vec3i) {
-        var repl = new Octree[T](center, radius)
-        repl.children = children
-        children = makeChildren
-        center = lerp(p, radius)
-        radius *= 2
-        children(indexOf(repl.center)) = repl
+    private[util] def setsubtree(p: Vec3i, subtree: OctreeNode[T]) {
+        children(indexOf(p)) = subtree
     }
 
     def update(p: Vec3i, value: T) {
-        while (!encloses(p)) wrap(p)
         val i = indexOf(p)
         children(i) match {
             case null => grow(i).update(p, value)
@@ -106,25 +93,34 @@ case class Octree[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
         for (c <- children if c != null) c.foreach(f)
 }
 
-private object LeafOffsets {
-    lazy val offsets = Array(
-            ConstVec3i(-1,-1,-1),
-            ConstVec3i( 0,-1,-1),
-            ConstVec3i(-1, 0,-1),
-            ConstVec3i( 0, 0,-1),
-            ConstVec3i(-1,-1, 0),
-            ConstVec3i( 0,-1, 0),
-            ConstVec3i(-1, 0, 0),
-            ConstVec3i( 0, 0, 0))
+case class Octree[T:Manifest] (c: Vec3i = ConstVec3i(0,0,0)) extends IOctree[T](c, 2) {
+    var tree = OctreeNode[T](c, 2)
 
-    def apply(i:Int) = offsets(i)
+    /**
+     * Expand Octree one level, shifting the center toward p
+     */
+    protected def expand(p: Vec3i) {
+        var repl = OctreeNode[T](lerp(p, radius), radius * 2)
+        repl.setsubtree(center, tree)
+        tree = repl
+        center = tree.center
+        radius = tree.radius
+    }
+
+    def apply(p: Vec3i) = tree.apply(p)
+    def get(p: Vec3i) = tree.get(p)
+    def update(p: Vec3i, value: T) {
+        while (!encloses(p)) expand(p)
+        tree(p) = value
+    }
+
+    def foreach[U](f: (Vec3i, T) => U) = tree.foreach(f)
+    def foreach[U](f: (T) => U) = tree.foreach(f)
 }
 
 case class OctreeLeaf[T:Manifest] (c: Vec3i) extends IOctree[T](c, 1) {
 
-    type Child = T
-
-    def makeChildren = new Array[Child](8)
+    var children = new Array[T](8)
 
     def get(p: Vec3i): Option[T] = children(indexOf(p)) match {
         case null => None
@@ -141,4 +137,18 @@ case class OctreeLeaf[T:Manifest] (c: Vec3i) extends IOctree[T](c, 1) {
         for (ci <- 0 until 8 if children(ci) != null) {
             f(children(ci))
         }
+
+    private object LeafOffsets {
+        lazy val offsets = Array(
+                ConstVec3i(-1,-1,-1),
+                ConstVec3i( 0,-1,-1),
+                ConstVec3i(-1, 0,-1),
+                ConstVec3i( 0, 0,-1),
+                ConstVec3i(-1,-1, 0),
+                ConstVec3i( 0,-1, 0),
+                ConstVec3i(-1, 0, 0),
+                ConstVec3i( 0, 0, 0))
+
+        def apply(i:Int) = offsets(i)
+    }
 }
