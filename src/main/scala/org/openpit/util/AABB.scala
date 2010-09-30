@@ -19,4 +19,53 @@ class AABB (a: Vec3f, b: Vec3f) {
         min.y <= aabb.min.y && aabb.max.y <= max.y &&
         min.z <= aabb.min.z && aabb.max.z <= max.z
     }
+
+    /**
+     * Cast a ray toward this AABB and find the distance.
+     *
+     * XXX Over many AABB this should be refactored to eliminate
+     # common subexpressions like 1 ./ v
+     *
+     * @param  p The start point of the ray
+     * @param  v The direction of the ray
+     * @param  l The length of the ray
+     * @return Distance to the closest point of intersection.
+     *         Intersection point is then p + v * result and
+     *         result <= l.
+     */
+    def raycast(p: Vec3f, v: Vec3f, l: Float): Option[Float] = {
+        def raycastaxis(px: Float, vx: Float, minx: Float, maxx: Float) = {
+            if (abs(vx) < 0.00001f) {
+                if (px >= minx && px <= maxx)
+                    (Float.MinValue, Float.MaxValue)
+                else
+                    (Float.MaxValue, Float.MinValue)
+            } else {
+                val t1 = (minx - px) / vx
+                val t2 = (maxx - px) / vx
+                if (t1 > t2) (t2, t1)
+                else         (t1, t2)
+            }
+        }
+        var (near, far) = raycastaxis(p.x, v.x, min.x, max.x)
+        val (ynear, yfar) = raycastaxis(p.y, v.y, min.y, max.y)
+        near = near.max(ynear)
+        far = far.min(yfar)
+        if (near > far) {
+            None    // miss
+        } else {
+            val (znear, zfar) = raycastaxis(p.z, v.z, min.z, max.z)
+            near = near.max(znear)
+            far = far.min(zfar)
+            if (near > far) {
+                None    // miss
+            } else if (far < 0f) {
+                None    // behind
+            } else if (near <= l) {
+                Some(near)
+            } else {
+                None    // too far
+            }
+        }
+    }
 }
