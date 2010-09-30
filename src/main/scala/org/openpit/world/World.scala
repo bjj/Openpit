@@ -4,7 +4,7 @@ import simplex3d.math.intm._
 import org.openpit.world.blocks._
 import org.openpit.util._
 
-object World extends Octree[Block](Vec3i(0,0,0), 2) {
+object World extends Octree[Block] {
 
     def generate() {
         plain()

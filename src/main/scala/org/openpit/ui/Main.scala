@@ -1,5 +1,6 @@
 package org.openpit.ui
 
+import org.lwjgl.Sys
 import org.lwjgl.opengl.Display
 import org.lwjgl.input.{Keyboard, Mouse}
 
@@ -7,13 +8,17 @@ import org.openpit.ui.console.FPS
 import org.openpit.world.World
 
 object Main {
+    val unitsPerSecond = 18.0
+    lazy val ticksPerSecond : Double = Sys.getTimerResolution()
+
     var finished = false
+    var lastTime = 0.0
 
     def main(args: Array[String]) {
 
         init()
         while (!finished) {
-            input()
+            handleInput()
             Window.paint()
         }
         cleanup()
@@ -24,36 +29,37 @@ object Main {
         Window.init()
         World.generate()
         Window.update() // XXX should be Layers.update() or something
-
-        Keyboard.create()
-        Mouse.create()
-        Mouse.setGrabbed(true)
-
+        Input.init()
         FPS.start()
+
+        lastTime = getCurrentTime()
     }
 
+    def getCurrentTime() = {
+        Sys.getTime() / ticksPerSecond
+    }
+ 
     def cleanup() {
-        Mouse.setGrabbed(false)
+        Input.cleanup()
     }
 
-    def input() {
-        if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
-            finished = true
-            println("esc hit")
-        } else if (Display.isCloseRequested()) {
-            finished = true
-            println("exit clicked")
+    def handleInput() {
+        var currentTime = getCurrentTime()
+        var elapsedTime = currentTime - lastTime
+        lastTime = currentTime
+
+        var movement = unitsPerSecond * elapsedTime
+        var movementFloat = movement.toFloat
+
+        import Input._
+        input() match {
+            case Quit => finished = true
+            case Inventory => Unit
+            case Menu => Unit
+            case m: Move =>
+                Camera.update(m.yaw, m.pitch)
+                Camera.strafe(m.dx * movementFloat)
+                Camera.walk(m.dy * movementFloat)
         }
-
-        import org.openpit.ui.Camera
-        Camera.update(-Mouse.getDX * 0.3f, Mouse.getDY * 0.3f)
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_A)) Camera.strafe(-0.3)
-        if (Keyboard.isKeyDown(Keyboard.KEY_S)) Camera.walk(-0.3)
-        if (Keyboard.isKeyDown(Keyboard.KEY_D)) Camera.strafe(0.3)
-        if (Keyboard.isKeyDown(Keyboard.KEY_W)) Camera.walk(0.3)
-
-        if (Keyboard.isKeyDown(Keyboard.KEY_Q)) Camera.update(10, 0)
-        if (Keyboard.isKeyDown(Keyboard.KEY_E)) Camera.update(-10, 0)
     }
 }
