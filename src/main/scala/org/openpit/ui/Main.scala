@@ -61,38 +61,37 @@ object Main {
                 Camera.strafe(m.dx * movementFloat)
                 Camera.walk(m.dy * movementFloat)
 
-                if (m.tool || m.use) {
+                {
                     import simplex3d.math.intm._
                     import org.openpit.util.AABB
                     import org.openpit.world.blocks._
                     val eye = Camera.eye
                     val dir = Camera.direction
-                    val reach = 4f
+                    val reach = 5f
                     val bound = AABB.fromRay(eye, dir, reach).rounded
                     //println("" + Camera.eye + " " + Camera.direction + " bound " + bound)
-                    if (m.use) {
-                        // turn first hit block into cobblestone
-                        var bestdist = Float.MaxValue
-                        var bestloc: Option[Vec3i] = None
-                        World.foreach(bound) {
-                            case (loc, Air) => Unit
-                            case (loc, b) =>
-                                val blockvolume = AABB.fromBlock(loc)
-                                blockvolume.raycast(eye, dir, reach) match {
-                                    case Some(dist) => if (dist < bestdist) {
-                                        bestdist = dist
-                                        bestloc = Some(loc)
-                                    }
-                                    case None => Unit
+
+                    // turn first hit block into cobblestone
+                    var bestdist = Float.MaxValue
+                    var bestloc: Option[Vec3i] = None
+                    World.foreach(bound) {
+                        case (loc, Air) => Unit
+                        case (loc, b) =>
+                            val blockvolume = AABB.fromBlock(loc)
+                            blockvolume.raycast(eye, dir, reach) match {
+                                case Some(dist) => if (dist < bestdist) {
+                                    bestdist = dist
+                                    bestloc = Some(loc)
                                 }
-                        }
-                        bestloc.foreach(World(_) = Cobblestone())
+                                case None => Unit
+                            }
                     }
-                    if (m.tool) {
-                        // destroy loose bounding box of pickable area just for fun
-                        World.foreach(bound) { case (loc, b) => World(loc) = Air }
-                    }
-                    Window.update()
+                    SelectLayer.selected = bestloc
+
+                    if (m.use) SelectLayer.selected.foreach(World(_) = Cobblestone())
+                    if (m.tool) SelectLayer.selected.foreach(World(_) = Air)
+                    if (m.use || m.tool)
+                        Window.update()
                 }
         }
     }

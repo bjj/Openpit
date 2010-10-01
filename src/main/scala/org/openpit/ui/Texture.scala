@@ -131,4 +131,9 @@ object Texture {
         glGenTextures(idbuf asIntBuffer)
         idbuf.get(0)
     }
+
+    def unbind() {
+        glBindTexture(GL_TEXTURE_2D, 0)
+        Texture.lastTextureBound = null
+    }
 }
