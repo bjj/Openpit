@@ -71,4 +71,10 @@ object AABBSpec extends Properties("AABB") {
                              getOrElse(0f), 1.0f, 0.0001f)
         }
     }
+
+    property("rounded contains self") = forAll { (a: Vec3f, b: Vec3f) =>
+        val aabb = new AABB(a, b)
+        val round = aabb.rounded
+        (round contains aabb) && (round == aabb || !(aabb contains round))
+    }
 }

@@ -20,6 +20,17 @@ class AABB (a: Vec3f, b: Vec3f) {
         min.z <= aabb.min.z && aabb.max.z <= max.z
     }
 
+    override def equals(other: Any) = other match {
+        case aabb: AABB => (min == aabb.min && max == aabb.max)
+        case _ => false
+    }
+
+    /**
+     * Round up/down to the nearest int coordinates which enclose the
+     * same volume
+     */
+    def rounded = new AABB(floor(min), ceil(max))
+
     /**
      * Cast a ray toward this AABB and find the distance.
      *
@@ -68,4 +79,13 @@ class AABB (a: Vec3f, b: Vec3f) {
             }
         }
     }
+
+    override def toString = ("AABB(" + min + ", " + max +")")
+}
+
+object AABB {
+    /**
+     * Create an AABB from a AABB.raycast-style point, direction and length
+     */
+    def fromRay(p: Vec3f, v: Vec3f, l: Float) = new AABB(p, p + v * l)
 }
