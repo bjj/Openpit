@@ -1,5 +1,6 @@
 package org.openpit.util
 
+import simplex3d.math.intm._
 import simplex3d.math.floatm._
 import simplex3d.math.floatm.FloatMath._
 
@@ -8,19 +9,25 @@ class AABB (a: Vec3f, b: Vec3f) {
     val min = FloatMath.min(a, b)
     val max = FloatMath.max(a, b)
 
-    def contains(v: Vec3f) = {
+    final def contains(v: Vec3f) = {
         min.x <= v.x && v.x <= max.x &&
         min.y <= v.y && v.y <= max.y &&
         min.z <= v.z && v.z <= max.z
     }
 
-    def contains(aabb: AABB) = {
+    final def contains(aabb: AABB) = {
         min.x <= aabb.min.x && aabb.max.x <= max.x &&
         min.y <= aabb.min.y && aabb.max.y <= max.y &&
         min.z <= aabb.min.z && aabb.max.z <= max.z
     }
 
-    override def equals(other: Any) = other match {
+    final def intersects(aabb: AABB) = {
+        ! ((max.x < aabb.min.x) || (min.x > aabb.max.x) ||
+           (max.y < aabb.min.y) || (min.y > aabb.max.y) ||
+           (max.z < aabb.min.z) || (min.z > aabb.max.z))
+    }
+
+    final override def equals(other: Any) = other match {
         case aabb: AABB => (min == aabb.min && max == aabb.max)
         case _ => false
     }
@@ -29,7 +36,9 @@ class AABB (a: Vec3f, b: Vec3f) {
      * Round up/down to the nearest int coordinates which enclose the
      * same volume
      */
-    def rounded = new AABB(floor(min), ceil(max))
+    final def rounded = new AABB(floor(min), ceil(max))
+
+    final def center = (min + max) * 0.5f
 
     /**
      * Cast a ray toward this AABB and find the distance.
@@ -44,7 +53,7 @@ class AABB (a: Vec3f, b: Vec3f) {
      *         Intersection point is then p + v * result and
      *         result <= l.
      */
-    def raycast(p: Vec3f, v: Vec3f, l: Float): Option[Float] = {
+    final def raycast(p: Vec3f, v: Vec3f, l: Float): Option[Float] = {
         def raycastaxis(px: Float, vx: Float, minx: Float, maxx: Float) = {
             if (abs(vx) < 0.00001f) {
                 if (px >= minx && px <= maxx)
@@ -80,7 +89,7 @@ class AABB (a: Vec3f, b: Vec3f) {
         }
     }
 
-    override def toString = ("AABB(" + min + ", " + max +")")
+    final override def toString = ("AABB(" + min + ", " + max +")")
 }
 
 object AABB {
@@ -88,4 +97,9 @@ object AABB {
      * Create an AABB from a AABB.raycast-style point, direction and length
      */
     def fromRay(p: Vec3f, v: Vec3f, l: Float) = new AABB(p, p + v * l)
+
+    /**
+     * Create an AABB for a given block location
+     */
+    def fromBlock(p: Vec3i) = new AABB(p, p + ConstVec3i(1,1,1))
 }

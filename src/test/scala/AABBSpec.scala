@@ -20,7 +20,8 @@ object AABBSpec extends Properties("AABB") {
 
     property("contains self") = forAll { (a: Vec3f, b: Vec3f) =>
         val aabb = new AABB(a, b)
-        (aabb contains a) && (aabb contains b) && (aabb contains aabb)
+        (aabb contains a) && (aabb contains b) &&
+        (aabb contains aabb) && (aabb intersects aabb)
     }
 
     property("contains center") = forAll { (a: Vec3f, b: Vec3f) =>
@@ -75,6 +76,8 @@ object AABBSpec extends Properties("AABB") {
     property("rounded contains self") = forAll { (a: Vec3f, b: Vec3f) =>
         val aabb = new AABB(a, b)
         val round = aabb.rounded
-        (round contains aabb) && (round == aabb || !(aabb contains round))
+        (round contains aabb) &&
+        (round intersects aabb) &&
+        (round == aabb || !(aabb contains round))
     }
 }
