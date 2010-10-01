@@ -66,6 +66,7 @@ object Main {
                 }
                 {
                     import simplex3d.math.intm._
+                    import simplex3d.math.floatm.FloatMath._
                     import org.openpit.util.AABB
                     import org.openpit.world.blocks._
                     val eye = Camera.eye
@@ -90,14 +91,17 @@ object Main {
                             }
                     }
                     SelectLayer.selected = bestloc
+                    SelectLayer.distance = bestdist
 
-                    if (m.use) SelectLayer.selected.foreach(arg => {
-                      val newVec = Vec3f(eye)
-                      var otherVec = Vec3f(dir)
-                      otherVec *= bestdist
-                      newVec += otherVec
-                      World(Vec3i(newVec)) = Cobblestone()
-                    })
+                    bestloc match {
+                        case None =>
+                            SelectLayer.target = None
+                        case _ =>
+                            val hitpoint = eye + dir * (bestdist * 0.99f)
+                            SelectLayer.target = Some(Vec3i(floor(hitpoint)))
+                    }
+
+                    if (m.use) SelectLayer.target.foreach(World(_) = Cobblestone())
                     if (m.tool) SelectLayer.selected.foreach(World(_) = Air)
                     if (m.use || m.tool)
                         Window.update()

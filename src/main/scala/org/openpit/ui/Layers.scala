@@ -14,6 +14,9 @@ object SelectLayer extends Layer3d(500, true) {
     import simplex3d.math.floatm._
 
     var selected: Option[Vec3i] = None
+    var distance = Float.MaxValue
+
+    var target: Option[Vec3i] = None
 
     def scale = 1.01f
 
