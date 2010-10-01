@@ -20,6 +20,7 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
 
     def update()
     def paint()
+    def dopaint() = glCallList(displayList)
 
     // XXX This can't be multithreaded with DisplayLists, but it could
     // after a conversion to VBOs.  If some layers still draw with
@@ -47,7 +48,7 @@ abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             }
-            glCallList(displayList)
+            dopaint()
             if (blend)
                 glDisable(GL_BLEND)
         }
@@ -62,7 +63,7 @@ abstract class Layer2d(zz: Int) extends Layer(zz) {
             Projection.ortho()
             glEnable(GL_BLEND)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            glCallList(displayList)
+            dopaint()
             glDisable(GL_BLEND)
         }
     }
