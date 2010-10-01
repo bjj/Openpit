@@ -7,7 +7,7 @@ object Input {
 
     sealed abstract class Input
     case object Quit extends Input
-    case class Move(val dx: Int, val dy: Int, val yaw: Float, val pitch: Float,
+    case class Move(val dx: Int, val dy: Int, val dz: Int, val yaw: Float, val pitch: Float,
                     val jump: Boolean, val crouch: Boolean,
                     val tool: Boolean, val use: Boolean) extends Input
     case object Inventory extends Input
@@ -36,6 +36,9 @@ object Input {
     var LOOK_SENSITIVITY = 0.3f
     var LOOK_INVERT = 1f
 
+    var KEY_UP = Keyboard.KEY_Z
+    var KEY_DOWN = Keyboard.KEY_X
+
     def input() = {
         if (Keyboard.isKeyDown(KEY_MENU)) {
             Quit // Menu
@@ -55,6 +58,7 @@ object Input {
 
             Move(dx = dir(KEY_LEFT, KEY_RIGHT),
                  dy = dir(KEY_BACKWARD, KEY_FORWARD),
+                 dz = dir(KEY_UP, KEY_DOWN),
                  yaw = -Mouse.getDX.toFloat * LOOK_SENSITIVITY,
                  pitch = Mouse.getDY.toFloat * LOOK_SENSITIVITY * LOOK_INVERT,
                  jump = Keyboard.isKeyDown(KEY_JUMP),

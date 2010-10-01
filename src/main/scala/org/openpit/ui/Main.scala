@@ -6,6 +6,7 @@ import org.lwjgl.input.{Keyboard, Mouse}
 
 import org.openpit.ui.console.FPS
 import org.openpit.world.World
+import simplex3d.math.floatm.Vec3f
 
 object Main {
     val unitsPerSecond = 18.0
@@ -60,7 +61,9 @@ object Main {
                 Camera.update(m.yaw, m.pitch)
                 Camera.strafe(m.dx * movementFloat)
                 Camera.walk(m.dy * movementFloat)
-
+                if(m.jump) {
+                   Camera.fly(m.dz * movementFloat)
+                }
                 {
                     import simplex3d.math.intm._
                     import org.openpit.util.AABB
@@ -88,7 +91,13 @@ object Main {
                     }
                     SelectLayer.selected = bestloc
 
-                    if (m.use) SelectLayer.selected.foreach(World(_) = Cobblestone())
+                    if (m.use) SelectLayer.selected.foreach(arg => {
+                      val newVec = Vec3f(eye)
+                      var otherVec = Vec3f(dir)
+                      otherVec *= bestdist
+                      newVec += otherVec
+                      World(Vec3i(newVec)) = Cobblestone()
+                    })
                     if (m.tool) SelectLayer.selected.foreach(World(_) = Air)
                     if (m.use || m.tool)
                         Window.update()

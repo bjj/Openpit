@@ -41,6 +41,10 @@ object Camera {
         y += d * sin(yaw + 90 toRadians)
     }
 
+    def fly(d: Float) {
+       z += d;
+    }
+
     def eye = Vec3f(x, y, z + height)
 
     def direction = {
