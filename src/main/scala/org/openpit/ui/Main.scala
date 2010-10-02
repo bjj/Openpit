@@ -73,9 +73,7 @@ object Main {
                     val dir = Camera.direction
                     val reach = 5f
                     val bound = AABB.fromRay(eye, dir, reach).rounded
-                    //println("" + Camera.eye + " " + Camera.direction + " bound " + bound)
 
-                    // turn first hit block into cobblestone
                     var bestdist = Float.MaxValue
                     var bestloc: Option[Vec3i] = None
                     World.foreach(bound) {
@@ -90,6 +88,8 @@ object Main {
                                 case None => Unit
                             }
                     }
+
+                    if (bestdist < 0.3f) bestloc = None // Too close, match player radius?
                     SelectLayer.selected = bestloc
                     SelectLayer.distance = bestdist
 
@@ -101,7 +101,11 @@ object Main {
                             SelectLayer.target = Some(Vec3i(floor(hitpoint)))
                     }
 
-                    if (m.use) SelectLayer.target.foreach(World(_) = Cobblestone())
+                    if (m.use) SelectLayer.target.foreach {
+                        case loc =>
+                            if (!Camera.collisionBox.intersects(AABB.fromBlock(loc)))
+                                World(loc) = Cobblestone()
+                    }
                     if (m.tool) SelectLayer.selected.foreach(World(_) = Air)
                     if (m.use || m.tool)
                         Window.update()
