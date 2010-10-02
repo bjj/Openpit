@@ -103,10 +103,20 @@ object Main {
 
                     if (m.use) SelectLayer.target.foreach {
                         case loc =>
-                            if (!Camera.collisionBox.intersects(AABB.fromBlock(loc)))
+                            if (!Camera.collisionBox.intersects(AABB.fromBlock(loc))) {
                                 World(loc) = Cobblestone()
+                                // XXX use position interface
+                                SoundEffect.KungFuPunch.playAsSoundEffect(1f, 1f, false)
+                            }
                     }
-                    if (m.tool) SelectLayer.selected.foreach(World(_) = Air)
+                    if (m.tool) SelectLayer.selected.foreach {
+                        case loc =>
+                            World.get(loc).filter(_ != Air).foreach {
+                                case _ =>
+                                SoundEffect.Digging.playAsSoundEffect(1f, 1f, false)
+                            }
+                            World(loc) = Air
+                    }
                     if (m.use || m.tool)
                         Window.update()
                 }
