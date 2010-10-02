@@ -16,4 +16,5 @@ class OpenPitProject(info: ProjectInfo) extends LWJGLProject(info) with Eclipsif
 
     //val slick = "slick" % "slick" % "274"
     //val cokeandcode = "Coke and Code Repository" at "http://slick.cokeandcode.com/mavenrepo/"
+    val slick = "org.newdawn.slick" % "org.newdawn.slick.openal" % "274" from "http://slick.cokeandcode.com/downloads/util/slick-util.jar"
 }

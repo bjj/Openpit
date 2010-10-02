@@ -8,9 +8,6 @@ Unpack lwjgl-2.5 in lib
 Unpack simplex3d in lib (binary components only) (currently buffers not used)
     http://code.google.com/p/simplex3d/downloads/list
 
-Get slick-util:
-    http://slick.cokeandcode.com/downloads/util/slick-util.jar
-
 stuff in my lib:
     lib
     lib/simplex3d
