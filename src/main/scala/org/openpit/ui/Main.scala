@@ -61,6 +61,7 @@ object Main {
                 Camera.update(m.yaw, m.pitch)
                 Camera.strafe(m.dx * movementFloat)
                 Camera.walk(m.dy * movementFloat)
+                Camera.climb(m.dz * movementFloat)
                 if(m.jump) {
                    Camera.fly(movementFloat)
                 }

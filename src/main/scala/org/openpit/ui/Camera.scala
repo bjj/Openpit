@@ -42,6 +42,10 @@ object Camera {
         loc.y += d * sin(yaw + 90 toRadians)
     }
 
+    def climb(d : Float) {
+        loc.z += d
+    }
+
     def fly(d: Float) {
         loc += direction * d
     }
