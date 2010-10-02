@@ -1,5 +1,7 @@
 package org.openpit.ui
 
+import org.openpit.util.AABB
+
 import simplex3d.math.floatm._
 import simplex3d.math.floatm.FloatMath._
 //import java.lang.Math._
@@ -11,9 +13,8 @@ object Camera {
     var yaw = 0.0f
     var pitch = 0.0f
     var height = 1.7f
-    var x = -5.0f
-    var y = -1.0f
-    var z = 10.0f
+    var radius = 0.3f
+    var loc = Vec3f(-5f, -1f, 10f)
 
     def look() {
         GL11.glMatrixMode(GL11.GL_MODELVIEW)
@@ -21,7 +22,7 @@ object Camera {
         GLU.gluLookAt(0,0,0, 0,1,0, 0,0,1)
         GL11.glRotatef(-pitch, 1f, 0, 0)
         GL11.glRotatef(-yaw, 0, 0, 1.0f)
-        GL11.glTranslatef(-x, -y, -z-height)
+        GL11.glTranslatef(-loc.x, -loc.y, -loc.z-height)
     }
 
     def update(dyaw: Float, dpitch: Float) {
@@ -32,20 +33,20 @@ object Camera {
     }
 
     def strafe(d: Float) {
-        x += d * cos(yaw toRadians)
-        y += d * sin(yaw toRadians)
+        loc.x += d * cos(yaw toRadians)
+        loc.y += d * sin(yaw toRadians)
     }
 
     def walk(d: Float) {
-        x += d * cos(yaw + 90 toRadians)
-        y += d * sin(yaw + 90 toRadians)
+        loc.x += d * cos(yaw + 90 toRadians)
+        loc.y += d * sin(yaw + 90 toRadians)
     }
 
     def fly(d: Float) {
-       z += d;
+        loc += direction * d
     }
 
-    def eye = Vec3f(x, y, z + height)
+    def eye = loc + Vec3f(0, 0, height)
 
     def direction = {
         val qpitch = quaternion(radians(pitch), Vec3f.UnitX)
@@ -53,4 +54,8 @@ object Camera {
         val lookat = Vec3f.UnitY
         rotateVector(lookat, qroll * qpitch)
     }
+
+    def collisionBox() = new AABB(loc - ConstVec3f(1,1,0) * radius,
+                                  eye + ConstVec3f(1,1,0) * radius)
+
 }

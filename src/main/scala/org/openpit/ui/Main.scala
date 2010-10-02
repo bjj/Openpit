@@ -62,7 +62,7 @@ object Main {
                 Camera.strafe(m.dx * movementFloat)
                 Camera.walk(m.dy * movementFloat)
                 if(m.jump) {
-                   Camera.fly(m.dz * movementFloat)
+                   Camera.fly(movementFloat)
                 }
                 {
                     import simplex3d.math.intm._

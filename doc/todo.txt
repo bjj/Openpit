@@ -1,3 +1,5 @@
+should Block instead be an Enumeration?
+
 windows
     consider launch4j, jsmooth windows launchers
 

@@ -7,7 +7,8 @@ object Input {
 
     sealed abstract class Input
     case object Quit extends Input
-    case class Move(val dx: Int, val dy: Int, val dz: Int, val yaw: Float, val pitch: Float,
+    case class Move(val dx: Int, val dy: Int, val dz: Int,
+                    val yaw: Float, val pitch: Float,
                     val jump: Boolean, val crouch: Boolean,
                     val tool: Boolean, val use: Boolean) extends Input
     case object Inventory extends Input
