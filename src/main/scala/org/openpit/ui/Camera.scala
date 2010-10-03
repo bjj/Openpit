@@ -16,6 +16,12 @@ object Camera {
     var radius = 0.3f
     var loc = Vec3f(-5f, -1f, 10f)
 
+    val gravity = Vec3f(0f, 0f, -9.8f) // -9.8m/s^2
+    val jumpForce = Vec3f(0f, 0f, 5f)  //  5.0m/s^2
+
+    var jumping = false
+    var jumpVector = Vec3f(0f, 0f, 0f)
+
     def look() {
         GL11.glMatrixMode(GL11.GL_MODELVIEW)
         GL11.glLoadIdentity()
@@ -25,7 +31,16 @@ object Camera {
         GL11.glTranslatef(-loc.x, -loc.y, -loc.z-height)
     }
 
-    def update(dyaw: Float, dpitch: Float) {
+    def beginJump() {
+        jumping = true
+        jumpVector = jumpForce clone
+    }
+
+    def update(dyaw: Float, dpitch: Float, elapsedTime: Float) {
+        if (jumping) {
+            loc += jumpVector * elapsedTime
+            jumpVector += gravity * elapsedTime
+        }
         yaw += dyaw
         pitch += dpitch
         if (pitch > 90) pitch = 90

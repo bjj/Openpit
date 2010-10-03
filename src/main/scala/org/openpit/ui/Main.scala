@@ -39,7 +39,7 @@ object Main {
     def getCurrentTime() = {
         Sys.getTime() / ticksPerSecond
     }
- 
+
     def cleanup() {
         Input.cleanup()
     }
@@ -58,12 +58,16 @@ object Main {
             case Inventory => Unit
             case Menu => Unit
             case m: Move =>
-                Camera.update(m.yaw, m.pitch)
-                Camera.strafe(m.dx * movementFloat)
-                Camera.walk(m.dy * movementFloat)
-                Camera.climb(m.dz * movementFloat)
-                if(m.jump) {
-                   Camera.fly(movementFloat)
+                Camera.update(m.yaw, m.pitch, elapsedTime.toFloat)
+
+                // If the player is jumping, they aren't allowed to move.
+                if (!Camera.jumping) {
+                    // XXX sMove this to the camera so it can jump in the right direction.
+                    Camera.strafe(m.dx * movementFloat)
+                    Camera.walk(m.dy * movementFloat)
+                    if (m.jump) {
+                       Camera.beginJump
+                    }
                 }
 
                 // Update selection point
