@@ -65,43 +65,37 @@ object Main {
                 if(m.jump) {
                    Camera.fly(movementFloat)
                 }
+
+                // Update selection point
+                val reach    = 5f
+                val minreach = 0.3f
+                var hit = World.raycast(Camera.eye, Camera.direction, reach)
+
+                // Filter out hits too near
+                hit = hit match {
+                    case World.Hit(loc, dist) =>
+                        if (dist < minreach) World.Miss else hit
+                    case World.Miss => World.Miss
+                }
+
+                hit match {
+                    case World.Hit(loc, dist) =>
+                        SelectLayer.selected = Some(loc)
+                        SelectLayer.distance = dist
+                        val hitpoint = Camera.eye + Camera.direction *
+                                        (dist * 0.995f)
+                        import simplex3d.math.floatm.FloatMath._
+                        import simplex3d.math.intm._
+                        SelectLayer.target = Some(Vec3i(floor(hitpoint)))
+                    case World.Miss =>
+                        SelectLayer.selected = None
+                        SelectLayer.target = None
+                        SelectLayer.distance = Float.MaxValue
+                }
+
                 {
-                    import simplex3d.math.intm._
-                    import simplex3d.math.floatm.FloatMath._
-                    import org.openpit.util.AABB
                     import org.openpit.world.blocks._
-                    val eye = Camera.eye
-                    val dir = Camera.direction
-                    val reach = 5f
-                    val bound = AABB.fromRay(eye, dir, reach).rounded
-
-                    var bestdist = Float.MaxValue
-                    var bestloc: Option[Vec3i] = None
-                    World.foreach(bound) {
-                        case (loc, Air) => Unit
-                        case (loc, b) =>
-                            val blockvolume = AABB.fromBlock(loc)
-                            blockvolume.raycast(eye, dir, reach) match {
-                                case Some(dist) => if (dist < bestdist) {
-                                    bestdist = dist
-                                    bestloc = Some(loc)
-                                }
-                                case None => Unit
-                            }
-                    }
-
-                    if (bestdist < 0.3f) bestloc = None // Too close, match player radius?
-                    SelectLayer.selected = bestloc
-                    SelectLayer.distance = bestdist
-
-                    bestloc match {
-                        case None =>
-                            SelectLayer.target = None
-                        case _ =>
-                            val hitpoint = eye + dir * (bestdist * 0.99f)
-                            SelectLayer.target = Some(Vec3i(floor(hitpoint)))
-                    }
-
+                    import org.openpit.util._
                     if (m.use) SelectLayer.target.foreach {
                         case loc =>
                             if (!Camera.collisionBox.intersects(AABB.fromBlock(loc))) {

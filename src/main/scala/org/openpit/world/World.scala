@@ -1,6 +1,8 @@
 package org.openpit.world
 
 import simplex3d.math.intm._
+import simplex3d.math.floatm._
+import simplex3d.math.floatm.FloatMath._
 import org.openpit.world.blocks._
 import org.openpit.util._
 
@@ -27,5 +29,52 @@ object World extends Octree[Block] {
 
     def put(x: Int, y: Int, z: Int, b: Block) = {
         this(Vec3i(x,y,z)) = b
+    }
+
+    /**
+     * A case class Shot is Hit or Miss with a world location and distance
+     */
+    abstract class Shot extends Ordered[Shot]
+    case class Hit(val loc: Vec3i, val distance: Float) extends Shot {
+        def compare(that: Shot) = that match {
+            case Miss            => -1
+            case Hit(_, thatdistance) =>
+                val delta = distance - thatdistance
+                if (delta < 0)      -1
+                else if (delta > 0)  1
+                else                 0
+        }
+    }
+    case object Miss extends Shot {
+        def compare(that: Shot) = that match {
+            case Miss      => 0
+            case Hit(_,_)  => 1
+        }
+    }
+
+    /**
+     * Select the first non-Air block that is hit by the given ray
+     *
+     * @param  point is the starting point for the search
+     * @param  vec is the search direction (assumed normalized vs reach)
+     * @param  reach is the distance to search along vec
+     * @return The location of the first block hit and the distance to
+     *         the intersection with the ray
+     */
+    def raycast(point: Vec3f, vec: Vec3f, reach: Float): Shot = {
+        // bounding box of all blocks we could possibly hit
+        val bound = AABB.fromRay(point, vec, reach).rounded
+        var result: Shot = Miss
+        foreach(bound) {
+            case (loc, Air) => Unit
+            case (loc, b)   =>
+                var t = AABB.fromBlock(loc).raycast(point, vec, reach) match {
+                    case None       => Miss
+                    case Some(dist) => Hit(loc, dist)
+                }
+                if (t < result)
+                    result = t
+        }
+        result
     }
 }
