@@ -19,7 +19,7 @@ object Camera {
     val gravity = Vec3f(0f, 0f, -9.8f) // -9.8m/s^2
     val jumpForce = Vec3f(0f, 0f, 5f)  //  5.0m/s^2
 
-    var jumping = false
+    var usingGravity = false
     var jumpVector = Vec3f(0f, 0f, 0f)
 
     def look() {
@@ -32,14 +32,24 @@ object Camera {
     }
 
     def beginJump() {
-        jumping = true
+        usingGravity = true
         jumpVector = jumpForce clone
     }
 
     def update(dyaw: Float, dpitch: Float, elapsedTime: Float) {
-        if (jumping) {
-            loc += jumpVector * elapsedTime
-            jumpVector += gravity * elapsedTime
+        if (usingGravity) {
+            import org.openpit.world.World
+            World.raycast(loc, jumpVector, elapsedTime) match {
+                case World.Hit(blockloc, when) =>
+                    if (jumpVector.z > 0)
+                        loc.z = blockloc.z + 1
+                    else
+                        loc += jumpVector * when
+                    jumpVector = Vec3f.Zero
+                case World.Miss =>
+                    loc += jumpVector * elapsedTime
+                    jumpVector += gravity * elapsedTime
+            }
         }
         yaw += dyaw
         pitch += dpitch
@@ -59,6 +69,7 @@ object Camera {
 
     def climb(d : Float) {
         loc.z += d
+        if (d != 0.0F) usingGravity = false
     }
 
     def fly(d: Float) {

@@ -9,7 +9,7 @@ import org.openpit.world.World
 import simplex3d.math.floatm.Vec3f
 
 object Main {
-    val unitsPerSecond = 18.0
+    val unitsPerSecond = 10.0  // XXX what speed
     lazy val ticksPerSecond : Double = Sys.getTimerResolution()
 
     var finished = false
@@ -60,14 +60,10 @@ object Main {
             case m: Move =>
                 Camera.update(m.yaw, m.pitch, elapsedTime.toFloat)
 
-                // If the player is jumping, they aren't allowed to move.
-                if (!Camera.jumping) {
-                    // XXX sMove this to the camera so it can jump in the right direction.
-                    Camera.strafe(m.dx * movementFloat)
-                    Camera.walk(m.dy * movementFloat)
-                    if (m.jump) {
-                       Camera.beginJump
-                    }
+                Camera.strafe(m.dx * movementFloat)
+                Camera.walk(m.dy * movementFloat)
+                if (m.jump) {
+                    Camera.beginJump
                 }
 
                 // Update selection point
