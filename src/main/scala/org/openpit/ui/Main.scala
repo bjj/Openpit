@@ -62,6 +62,7 @@ object Main {
 
                 Camera.strafe(m.dx * movementFloat)
                 Camera.walk(m.dy * movementFloat)
+                Camera.climb(m.dz * movementFloat)
                 if (m.jump) {
                     Camera.beginJump
                 }
