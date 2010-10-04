@@ -74,20 +74,25 @@ object Main {
 
                 // Filter out hits too near
                 hit = hit match {
-                    case World.Hit(loc, dist) =>
+                    case World.Hit(loc, dist, _) =>
                         if (dist < minreach) World.Miss else hit
                     case World.Miss => World.Miss
                 }
 
                 hit match {
-                    case World.Hit(loc, dist) =>
-                        SelectLayer.selected = Some(loc)
-                        SelectLayer.distance = dist
-                        val hitpoint = Camera.eye + Camera.direction *
-                                        (dist * 0.995f)
+                    case World.Hit(loc, dist, axis) =>
+                        import org.openpit.util.Axes._
                         import simplex3d.math.floatm.FloatMath._
                         import simplex3d.math.intm._
-                        SelectLayer.target = Some(Vec3i(floor(hitpoint)))
+                        import math.signum
+                        SelectLayer.selected = Some(loc)
+                        SelectLayer.distance = dist
+                        val displacement = axis match {
+                            case XX => Vec3i(1,0,0)*signum(Camera.eye.x - loc.x).toInt
+                            case YY => Vec3i(0,1,0)*signum(Camera.eye.y - loc.y).toInt
+                            case ZZ => Vec3i(0,0,1)*signum(Camera.eye.z - loc.z).toInt
+                        }
+                        SelectLayer.target = Some(loc + displacement)
                     case World.Miss =>
                         SelectLayer.selected = None
                         SelectLayer.target = None

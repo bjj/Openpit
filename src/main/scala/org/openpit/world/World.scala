@@ -35,10 +35,10 @@ object World extends Octree[Block] {
      * A case class Shot is Hit or Miss with a world location and distance
      */
     abstract class Shot extends Ordered[Shot]
-    case class Hit(val loc: Vec3i, val distance: Float) extends Shot {
+    case class Hit(val loc: Vec3i, val distance: Float, val axis: Axes.Axis) extends Shot {
         def compare(that: Shot) = that match {
             case Miss            => -1
-            case Hit(_, thatdistance) =>
+            case Hit(_, thatdistance, _) =>
                 val delta = distance - thatdistance
                 if (delta < 0)      -1
                 else if (delta > 0)  1
@@ -47,8 +47,8 @@ object World extends Octree[Block] {
     }
     case object Miss extends Shot {
         def compare(that: Shot) = that match {
-            case Miss      => 0
-            case Hit(_,_)  => 1
+            case Miss        => 0
+            case Hit(_,_,_)  => 1
         }
     }
 
@@ -69,8 +69,8 @@ object World extends Octree[Block] {
             case (loc, Air) => Unit
             case (loc, b)   =>
                 var t = AABB.fromBlock(loc).raycast(point, vec, reach) match {
-                    case None       => Miss
-                    case Some(dist) => Hit(loc, dist)
+                    case None                           => Miss
+                    case Some(AxialDistance(axis,dist)) => Hit(loc, dist, axis)
                 }
                 if (t < result)
                     result = t

@@ -40,7 +40,7 @@ object Camera {
         if (usingGravity) {
             import org.openpit.world.World
             World.raycast(loc, jumpVector, elapsedTime) match {
-                case World.Hit(blockloc, when) =>
+                case World.Hit(blockloc, when, _) =>
                     if (jumpVector.z > 0)
                         loc.z = blockloc.z + 1
                     else
