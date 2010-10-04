@@ -18,7 +18,7 @@ object SelectLayer extends Layer3d(500, true) {
 
     var target: Option[Vec3i] = None
 
-    def scale = 1.01f
+    def scale = 1.0025f
 
     override def dopaint() = {
 

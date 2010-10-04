@@ -109,7 +109,7 @@ object Render {
     }
 
     def renderWorld(s: (Vec3i, Block)=>Unit) {
-        Texture.Terrain.bind
+        Texture.Terrain.bind(true)
         glColor4f(1,1,1,1)
         glBegin(GL_QUADS)
         World.foreach(s)
@@ -125,9 +125,14 @@ object Render {
     }
 
     def updateDisplayList(list: Int, s: (Vec3i, Block) => Unit) = {
+        Texture.Terrain // force load
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
         glNewList(list, GL_COMPILE)
         renderWorld(s)
         glEndList()
+        glPopMatrix()
     }
 
     def render() {

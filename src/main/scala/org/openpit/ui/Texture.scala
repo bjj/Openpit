@@ -22,8 +22,8 @@ import org.lwjgl.opengl.GL11._
 import org.lwjgl.util.glu.GLU
 
 class Texture(val id:Int, val width:Int, val height:Int) {
-    def bind() {
-        if (Texture.lastTextureBound != this) {
+    def bind(force: Boolean = false) {
+        if (Texture.lastTextureBound != this || force) {
             glBindTexture(GL_TEXTURE_2D, id)
             Texture.lastTextureBound = this
         }
