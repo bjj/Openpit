@@ -4,6 +4,29 @@ import simplex3d.math.intm._
 import simplex3d.math.floatm._
 import simplex3d.math.floatm.FloatMath._
 
+object Axes extends Enumeration {
+  type Axis = Value
+  val XX, YY, ZZ = Value
+}
+
+import Axes._
+
+final case class AxialDistance(axis: Axis, distance: Float) {
+    final def min(other: AxialDistance): AxialDistance = {
+        if (other.distance < distance) other else this
+    }
+    final def max(other: AxialDistance): AxialDistance = {
+        if (other.distance > distance) other else this
+    }
+    final def <(other: AxialDistance) = distance < other.distance
+    final def >(other: AxialDistance) = distance > other.distance
+    final def <=(other: AxialDistance) = distance <= other.distance
+    final def >=(other: AxialDistance) = distance >= other.distance
+    final def <(dist: Float) = distance < dist
+    final def >(dist: Float) = distance > dist
+    final def <=(dist: Float) = distance <= dist
+    final def >=(dist: Float) = distance >= dist
+}
 
 class AABB (a: Vec3f, b: Vec3f) {
     val min = FloatMath.min(a, b)
@@ -53,30 +76,32 @@ class AABB (a: Vec3f, b: Vec3f) {
      *         Intersection point is then p + v * result and
      *         result <= l.
      */
-    final def raycast(p: Vec3f, v: Vec3f, l: Float): Option[Float] = {
-        def raycastaxis(px: Float, vx: Float, minx: Float, maxx: Float) = {
+    final def raycast(p: Vec3f, v: Vec3f, l: Float): Option[AxialDistance] = {
+        def raycastaxis(px: Float, vx: Float, minx: Float, maxx: Float, axis: Axis) = {
+            def ax(f: Float) = AxialDistance(axis, f)
+            import Float.{MinValue, MaxValue}
             if (abs(vx) < 0.00001f) {
                 if (px >= minx && px <= maxx)
-                    (Float.MinValue, Float.MaxValue)
+                    (ax(MinValue), MaxValue)
                 else
-                    (Float.MaxValue, Float.MinValue)
+                    (ax(MaxValue), MinValue)
             } else {
                 val t1 = (minx - px) / vx
                 val t2 = (maxx - px) / vx
-                if (t1 > t2) (t2, t1)
-                else         (t1, t2)
+                if (t1 > t2) (ax(t2), t1)
+                else         (ax(t1), t2)
             }
         }
-        var (near, far) = raycastaxis(p.x, v.x, min.x, max.x)
-        val (ynear, yfar) = raycastaxis(p.y, v.y, min.y, max.y)
-        near = near.max(ynear)
-        far = far.min(yfar)
+        var (near, far) = raycastaxis(p.x, v.x, min.x, max.x, XX)
+        val (ynear, yfar) = raycastaxis(p.y, v.y, min.y, max.y, YY)
+        near = near max ynear
+        far = far min yfar
         if (near > far) {
             None    // miss
         } else {
-            val (znear, zfar) = raycastaxis(p.z, v.z, min.z, max.z)
-            near = near.max(znear)
-            far = far.min(zfar)
+            val (znear, zfar) = raycastaxis(p.z, v.z, min.z, max.z, ZZ)
+            near = near max znear 
+            far = far min zfar 
             if (near > far) {
                 None    // miss
             } else if (far < 0f) {

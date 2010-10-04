@@ -68,7 +68,7 @@ object AABBSpec extends Properties("AABB") {
             var d = normalize(edge - center)
             edge += d
             ("axis = " + axis + " edge = " + edge + " d = " + d) |:
-            approxEqual(aabb.raycast(edge, -d, 2.0f).
+            approxEqual(aabb.raycast(edge, -d, 2.0f).map(_.distance).
                              getOrElse(0f), 1.0f, 0.0001f)
         }
     }
