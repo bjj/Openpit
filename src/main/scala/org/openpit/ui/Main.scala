@@ -10,16 +10,18 @@ import simplex3d.math.floatm.Vec3f
 
 object Main {
     val unitsPerSecond = 10.0  // XXX what speed
-    lazy val ticksPerSecond : Double = Sys.getTimerResolution()
+    lazy val secondsPerTick : Float = 1.0f / Sys.getTimerResolution().toFloat
 
     var finished = false
-    var lastTime = 0.0
 
     def main(args: Array[String]) {
 
         init()
         while (!finished) {
-            handleInput()
+            elapsedTime() match {
+            case 0.0f => Unit
+            case dt   => handleInput(dt)
+            }
             Window.paint()
         }
         cleanup()
@@ -32,23 +34,24 @@ object Main {
         Window.update() // XXX should be Layers.update() or something
         Input.init()
         FPS.start()
-
-        lastTime = getCurrentTime()
-    }
-
-    def getCurrentTime() = {
-        Sys.getTime() / ticksPerSecond
     }
 
     def cleanup() {
         Input.cleanup()
     }
 
-    def handleInput() {
-        var currentTime = getCurrentTime()
-        var elapsedTime = currentTime - lastTime
-        lastTime = currentTime
+    var lastTicks = Sys.getTime()
+    def elapsedTime() = {
+        val nowTicks = Sys.getTime()
+        (nowTicks - lastTicks) match {
+            case 0     => 0.0f
+            case ticks => 
+                lastTicks = nowTicks
+                ticks * secondsPerTick
+        }
+    }
 
+    def handleInput(elapsedTime: Float) {
         var movement = unitsPerSecond * elapsedTime
         var movementFloat = movement.toFloat
 
