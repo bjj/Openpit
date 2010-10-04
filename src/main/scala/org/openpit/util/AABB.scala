@@ -7,6 +7,8 @@ import simplex3d.math.floatm.FloatMath._
 object Axes extends Enumeration {
   type Axis = Value
   val XX, YY, ZZ = Value
+
+  implicit def toInt(axis: Axis) = axis.id
 }
 
 import Axes._
@@ -49,6 +51,8 @@ class AABB (a: Vec3f, b: Vec3f) {
            (max.y < aabb.min.y) || (min.y > aabb.max.y) ||
            (max.z < aabb.min.z) || (min.z > aabb.max.z))
     }
+
+    final def + (v: Vec3f) = new AABB(min + v, max + v)
 
     final override def equals(other: Any) = other match {
         case aabb: AABB => (min == aabb.min && max == aabb.max)
@@ -111,6 +115,53 @@ class AABB (a: Vec3f, b: Vec3f) {
             } else {
                 None    // too far
             }
+        }
+    }
+
+    /**
+     * Sweep an AABB toward this box and find the distance after
+     * which they hit (if any).  Like raycasting but with an AABB
+     * instead of a point.  If both AABBs are moving, do the sweep
+     * with one stationary and the other having the relative velocity.
+     *
+     * @param  other The other AABB
+     * @param  v     The direction vector of the other AABB
+     * @return The time at which the collision begins, which is 0.0 for
+     *         already overlapping, up to 1.0 for collisions within the
+     *         length of v, and >1.0 if they would eventually hit later.
+     *         The objects just touch if you move
+     *         other by v * result.distance.
+     *
+     *         None if they are not touching and never touch along the
+     *         given vector.
+     */
+    final def sweep(other: AABB, v: Vec3f): Option[AxialDistance] = {
+        def starthit(axis: Axis) = AxialDistance(axis,
+            if (v(axis) < 0)
+                ((max(axis) - other.min(axis)) / v(axis)) max 0f
+            else if (v(axis) > 0)
+                ((min(axis) - other.max(axis)) / v(axis)) max 0f
+            else
+                Float.MaxValue  // case hidden by intersects test
+        )
+        def endhit(axis: Axis) = AxialDistance(axis,
+            if (v(axis) < 0)
+                ((min(axis) - other.max(axis)) / v(axis)) max 0f
+            else if (v(axis) > 0)
+                ((max(axis) - other.min(axis)) / v(axis)) max 0f
+            else
+                Float.MaxValue  // case hidden by intersects test
+        )
+
+        if (intersects(other)) {
+            Some(AxialDistance(ZZ, 0f))
+        } else {
+            val start = starthit(XX) max starthit(YY) max starthit(ZZ)
+            val end = endhit(XX) min endhit(YY) min endhit(ZZ)
+            if (start < end)
+                Some(start)
+            else
+                None
         }
     }
 

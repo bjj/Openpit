@@ -1,7 +1,8 @@
 package org.openpit.test
 
-import org.openpit.util.AABB
+import org.openpit.util._
 
+import simplex3d.math.intm._
 import simplex3d.math.floatm._
 import simplex3d.math.floatm.FloatMath._
 
@@ -79,5 +80,19 @@ object AABBSpec extends Properties("AABB") {
         (round contains aabb) &&
         (round intersects aabb) &&
         (round == aabb || !(aabb contains round))
+    }
+
+    property("sweep unit blocks") = forAll { (a: Vec3i, b: Vec3i) =>
+        distance(a, b) > 2.0 ==> {
+            val aa = AABB.fromBlock(a)
+            val bb = AABB.fromBlock(b)
+            val vec = aa.center - bb.center
+            val eps = (2.0 / length(vec)).toFloat
+            (aa.sweep(bb, -vec) == None) :| "moving away" &&
+            (aa.sweep(bb, vec) match {
+                case Some(AxialDistance(_, d)) => approxEqual(d, 1.0f, eps)
+                case None => false
+            })                           :| "moving toward"
+        }
     }
 }
