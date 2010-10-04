@@ -14,13 +14,20 @@ object Camera {
     var pitch = 0.0f
     var height = 1.7f
     var radius = 0.3f
-    var loc = Vec3f(-5f, -1f, 10f)
+    var loc = Vec3f(20.5f, 20.5f, 11.5f)
+    var prevloc = loc clone
+    var prevdt = 1.0f
 
-    val gravity = Vec3f(0f, 0f, -9.8f) // -9.8m/s^2
-    val jumpForce = Vec3f(0f, 0f, 5f)  //  5.0m/s^2
+    val gravity = Vec3f(0f, 0f, -9.8f) // m/s^2
+    val jumpAcc = Vec3f(0f, 0f, 18f)   // m/s^2
+    val walkAcc = 5f                   // m/s^2
+    val friction = 0.95f
 
     var usingGravity = false
-    var jumpVector = Vec3f(0f, 0f, 0f)
+
+    def qpitch = quaternion(radians(pitch), Vec3f.UnitX)
+    def qyaw(dyaw: Float = 0) = quaternion(radians(yaw + dyaw), Vec3f.UnitZ)
+    val lookat = Vec3f.UnitY    // matches gluLookAt call
 
     def look() {
         GL11.glMatrixMode(GL11.GL_MODELVIEW)
@@ -33,38 +40,55 @@ object Camera {
 
     def beginJump() {
         usingGravity = true
-        jumpVector = jumpForce clone
     }
 
-    def update(dyaw: Float, dpitch: Float, elapsedTime: Float) {
-        if (usingGravity) {
-            import org.openpit.world.World
-            World.raycast(loc, jumpVector, elapsedTime) match {
-                case World.Hit(blockloc, when, _) =>
-                    if (jumpVector.z > 0)
-                        loc.z = blockloc.z + 1
-                    else
-                        loc += jumpVector * when
-                    jumpVector = Vec3f.Zero
-                case World.Miss =>
-                    loc += jumpVector * elapsedTime
-                    jumpVector += gravity * elapsedTime
-            }
-        }
+    def aim(dyaw: Float, dpitch: Float) {
         yaw += dyaw
         pitch += dpitch
         if (pitch > 90) pitch = 90
         if (pitch < -90) pitch = -90
     }
 
-    def strafe(d: Float) {
-        loc.x += d * cos(yaw toRadians)
-        loc.y += d * sin(yaw toRadians)
-    }
+    def canJump = true
 
-    def walk(d: Float) {
-        loc.x += d * cos(yaw + 90 toRadians)
-        loc.y += d * sin(yaw + 90 toRadians)
+    def update(elapsedTime: Float, move: Option[Input.Move] = None) {
+        val userAcc = move match {
+            case Some(m) =>
+                aim(m.yaw, m.pitch)
+                walkAcc * rotateVector(lookat, qyaw(0)) * m.dy +
+                walkAcc * rotateVector(lookat, qyaw(-90)) * m.dx +
+                (if (m.jump && canJump) jumpAcc else Vec3f.Zero)
+            case None => Vec3f.Zero
+        }
+        val origloc = loc clone
+        val vel = (loc - prevloc) / prevdt
+        val frictionAcc = -vel * friction
+        val acc = userAcc + frictionAcc + gravity
+        val trymove = vel + acc
+
+        import org.openpit.world.World
+        import org.openpit.util.Axes._
+        def trimAxis(full: Vec3f, partial: Vec3f, ax: Axis) = ax match {
+            case XX => Vec3f(partial.x, full.y, full.z)
+            case YY => Vec3f(full.x, partial.y, full.z)
+            case ZZ => Vec3f(full.x, full.y, partial.z)
+        }
+        // XXX Arrgh this is so close to working.  The problem is that
+        // it only works for one 'Axis' (the first hit) which is always
+        // Z so you pass right through blocks sideways.  I don't feel
+        // like putting in a loop over all axes for this hack collision...
+        World.raycast(loc, trymove, elapsedTime) match {
+            case World.Hit(blockloc, when, ZZ) =>
+                loc += trimAxis(trymove * elapsedTime, trymove * when, ZZ)
+                prevloc = trimAxis(origloc, loc, ZZ)
+            case World.Hit(blockloc, when, axis) =>
+                loc += trimAxis(trymove * elapsedTime, trymove * when, axis)
+                prevloc = trimAxis(origloc, loc, axis)
+            case World.Miss =>
+                loc += trymove * elapsedTime
+                prevloc = origloc
+        }
+        prevdt = elapsedTime
     }
 
     def climb(d : Float) {
@@ -77,13 +101,7 @@ object Camera {
     }
 
     def eye = loc + Vec3f(0, 0, height)
-
-    def direction = {
-        val qpitch = quaternion(radians(pitch), Vec3f.UnitX)
-        val qroll = quaternion(radians(yaw), Vec3f.UnitZ)
-        val lookat = Vec3f.UnitY
-        rotateVector(lookat, qroll * qpitch)
-    }
+    def direction = rotateVector(lookat, qyaw() * qpitch)
 
     def collisionBox() = new AABB(loc - ConstVec3f(1,1,0) * radius,
                                   eye + ConstVec3f(1,1,0) * radius)

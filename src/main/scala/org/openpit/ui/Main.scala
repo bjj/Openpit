@@ -61,14 +61,9 @@ object Main {
             case Inventory => Unit
             case Menu => Unit
             case m: Move =>
-                Camera.update(m.yaw, m.pitch, elapsedTime.toFloat)
+                Camera.update(elapsedTime.toFloat, Some(m))
 
-                Camera.strafe(m.dx * movementFloat)
-                Camera.walk(m.dy * movementFloat)
                 Camera.climb(m.dz * movementFloat)
-                if (m.jump) {
-                    Camera.beginJump
-                }
 
                 // Update selection point
                 val reach    = 5f
