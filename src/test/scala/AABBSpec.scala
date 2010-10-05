@@ -117,4 +117,17 @@ object AABBSpec extends Properties("AABB") {
             })                           :| "moving toward"
         }
     }
+
+    property("escapes self") = forAll { (a: Vec3i, b: Vec3i) =>
+        val aabb = new AABB(a, b)
+        val escape = aabb.escape(aabb)
+        ("escape vec " + escape) |: !(aabb intersects (aabb + escape))
+    }
+
+    property("escapes any") = forAll { (a: Vec3i, b: Vec3i, c: Vec3i, d: Vec3i) =>
+        val aa = new AABB(a, b)
+        val bb = new AABB(c, d)
+        val escape = aa.escape(bb)
+        ("escape vec " + escape) |: !(aa intersects (bb + escape))
+    }
 }

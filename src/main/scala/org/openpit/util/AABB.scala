@@ -54,6 +54,10 @@ class AABB (a: Vec3f, b: Vec3f) {
 
     final def + (v: Vec3f) = new AABB(min + v, max + v)
 
+    final def union(aabb: AABB) =
+        new AABB(FloatMath.min(min, aabb.min),
+                 FloatMath.max(max, aabb.max))
+
     final override def equals(other: Any) = other match {
         case aabb: AABB => (min == aabb.min && max == aabb.max)
         case _ => false
@@ -84,7 +88,7 @@ class AABB (a: Vec3f, b: Vec3f) {
         def raycastaxis(px: Float, vx: Float, minx: Float, maxx: Float, axis: Axis) = {
             def ax(f: Float) = AxialDistance(axis, f)
             import Float.{MinValue, MaxValue}
-            if (abs(vx) < 0.00001f) {
+            if (abs(vx) < 0.0001f) {
                 if (px >= minx && px <= maxx)
                     (ax(MinValue), MaxValue)
                 else
@@ -130,21 +134,22 @@ class AABB (a: Vec3f, b: Vec3f) {
      * @param  v     The direction vector of the other AABB
      * @return The time at which the collision begins, which is 0.0 for
      *         already overlapping, up to 1.0 for collisions within the
-     *         length of v, and >1.0 if they would eventually hit later.
-     *         The objects just touch if you move
+     *         length of v. The objects just touch if you move
      *         other by v * result.distance.
      *
      *         None if they are not touching and never touch along the
      *         given vector.
      */
     final def sweep(other: AABB, v: Vec3f): Option[AxialDistance] = {
+        def overlap(axis: Axis) =
+            ! ((max(axis) < other.min(axis)) || (min(axis) > other.max(axis)))
         def starthit(axis: Axis) = AxialDistance(axis,
             if (v(axis) < 0)
                 ((max(axis) - other.min(axis)) / v(axis)) max 0f
             else if (v(axis) > 0)
                 ((min(axis) - other.max(axis)) / v(axis)) max 0f
             else
-                Float.MaxValue  // case hidden by intersects test
+                if (overlap(axis)) 0f else Float.MaxValue
         )
         def endhit(axis: Axis) = AxialDistance(axis,
             if (v(axis) < 0)
@@ -152,19 +157,31 @@ class AABB (a: Vec3f, b: Vec3f) {
             else if (v(axis) > 0)
                 ((max(axis) - other.min(axis)) / v(axis)) max 0f
             else
-                Float.MaxValue  // case hidden by intersects test
+                if (overlap(axis)) Float.MaxValue else 0f
         )
 
-        if (intersects(other)) {
-            Some(AxialDistance(ZZ, 0f))
-        } else {
-            val start = starthit(XX) max starthit(YY) max starthit(ZZ)
-            val end = endhit(XX) min endhit(YY) min endhit(ZZ)
-            if (start < end)
-                Some(start)
+        val start = starthit(XX) max starthit(YY) max starthit(ZZ)
+        val end = endhit(XX) min endhit(YY) min endhit(ZZ)
+        if (start < end && start <= 1.0f)
+            Some(start)
+        else
+            None
+    }
+
+    /**
+     * Return a vector which escapes from this AABB
+     */
+    def escape(other: AABB) = {
+        def move(axis: Axis) = AxialDistance(axis, 
+            if (center(axis) > other.center(axis))
+                (min(axis) - other.max(axis) - 0.01f) min 0f
             else
-                None
-        }
+                (max(axis) - other.min(axis) + 0.01f) max 0f
+        )
+        val m = move(XX) min move(YY) min move(ZZ)
+        var result = Vec3f(0,0,0)
+        result(m.axis) = m.distance
+        result
     }
 
     final override def toString = ("AABB(" + min + ", " + max +")")
