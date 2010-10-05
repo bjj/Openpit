@@ -77,4 +77,32 @@ object World extends Octree[Block] {
         }
         result
     }
+
+    /**
+     * Return first non-Air block the given AABB would collide with.
+     *
+     * @param  point is the starting point for the search
+     * @param  vec is the search direction (assumed normalized vs reach)
+     * @param  reach is the distance to search along vec
+     * @return The location of the first block hit and the distance to
+     *         the intersection with the ray
+     */
+    def sweep(aabb: AABB, vec: Vec3f): Shot = {
+        // bounding box of all blocks we could possibly hit
+        val bound = aabb union (aabb + vec)
+        var result: Shot = Miss
+        foreach(bound) {
+            case (loc, Air) => Unit
+            case (loc, b)   =>
+                var t = AABB.fromBlock(loc).sweep(aabb, vec) match {
+                    case Some(AxialDistance(axis, dist)) =>
+                        if (abs(vec(axis)) == 0.0f) Miss
+                        else                        Hit(loc, dist, axis)
+                    case None                    => Miss
+                }
+                if (t < result)
+                    result = t
+        }
+        result
+    }
 }
