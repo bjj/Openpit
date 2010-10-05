@@ -154,7 +154,7 @@ case class OctreeLeaf[T:Manifest] (c: Vec3i) extends IOctree[T](c, 1) {
         else if (intersects(bound))
             for (ci <- 0 until 8 if children(ci) != null) {
                 val loc = center + LeafOffsets(ci)
-                if (bound.contains(AABB.fromBlock(loc)))
+                if (bound.intersects(AABB.fromBlock(loc)))
                     f(center + LeafOffsets(ci), children(ci))
             }
     }
