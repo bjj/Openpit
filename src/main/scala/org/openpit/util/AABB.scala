@@ -86,7 +86,7 @@ class AABB (a: Vec3f, b: Vec3f) {
             import Float.{MinValue, MaxValue}
             if (abs(vx) < 0.00001f) {
                 if (px >= minx && px <= maxx)
-                    (ax(0), MaxValue)
+                    (ax(MinValue), MaxValue)
                 else
                     (ax(MaxValue), MinValue)
             } else {
@@ -106,7 +106,9 @@ class AABB (a: Vec3f, b: Vec3f) {
             val (znear, zfar) = raycastaxis(p.z, v.z, min.z, max.z, ZZ)
             near = near max znear 
             far = far min zfar 
-            if (near > far) {
+            if (near <= Float.MinValue) {
+                Some(AxialDistance(ZZ, 0f)) // inside
+            } else if (near > far) {
                 None    // miss
             } else if (far < 0f) {
                 None    // behind
