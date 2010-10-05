@@ -86,7 +86,7 @@ class AABB (a: Vec3f, b: Vec3f) {
             import Float.{MinValue, MaxValue}
             if (abs(vx) < 0.00001f) {
                 if (px >= minx && px <= maxx)
-                    (ax(MinValue), MaxValue)
+                    (ax(0), MaxValue)
                 else
                     (ax(MaxValue), MinValue)
             } else {

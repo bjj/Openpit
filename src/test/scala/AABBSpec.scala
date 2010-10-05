@@ -60,6 +60,28 @@ object AABBSpec extends Properties("AABB") {
             aabb.raycast(outside, d, Float.MaxValue) == None
     }}
 
+    property("raycast perpendicular") = forAll { (a: Vec3f, b: Vec3f) =>
+        distance(a, b) > 0.0f ==> {
+            val axis = Gen.choose(0,2).sample.get
+            val aabb = new AABB(a, b)
+            var byface = aabb.center
+            byface(axis) = a(axis) // move to face
+            val d = normalize(byface - aabb.center)
+            byface += d
+            val res = aabb.raycast(byface, -d, Float.MaxValue)
+            ("distance = " + res) |: approxEqual(res.map(_.distance).get, 1f, 0.0001f)
+    }}
+
+    property("raycast from face") = forAll { (a: Vec3f, b: Vec3f, v: Vec3f) =>
+        val axis = Gen.choose(0,2).sample.get
+        (a(axis) != b(axis) && distance(a, b) > 0.0f) ==> {
+            val aabb = new AABB(a, b)
+            var facepoint = aabb.center
+            facepoint(axis) = a(axis)
+            val res = aabb.raycast(facepoint, v, Float.MaxValue)
+            ("distance = " + res) |: res.map(_.distance).get == 0f
+    }}
+
     property("raycast distance") = forAll { (a: Vec3f, b: Vec3f) =>
         val axis = Gen.choose(0,2).sample.get
         (a(axis) != b(axis) && distance(a, b) > 0.0f) ==> {
