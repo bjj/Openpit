@@ -91,14 +91,15 @@ object World extends Octree[Block] {
         // bounding box of all blocks we could possibly hit
         val bound = aabb union (aabb + vec)
         var result: Shot = Miss
+        val absvec = abs(vec)
         foreach(bound) {
             case (loc, Air) => Unit
             case (loc, b)   =>
                 var t = AABB.fromBlock(loc).sweep(aabb, vec) match {
                     case Some(AxialDistance(axis, dist)) =>
-                        if (abs(vec(axis)) == 0.0f) Miss
-                        else                        Hit(loc, dist, axis)
-                    case None                    => Miss
+                        if (absvec(axis) == 0.0f) Miss
+                        else                      Hit(loc, dist, axis)
+                    case None                  => Miss
                 }
                 if (t < result)
                     result = t

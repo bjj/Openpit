@@ -14,7 +14,7 @@ object Camera {
     var pitch = 0.0f
     var height = 1.7f
     var radius = 0.3f
-    var loc = Vec3f(20.5f, 20.5f, 11.5f)
+    var loc = Vec3f(20.5f, 20.5f, 12.5f)
     var prevloc = loc clone
     var prevdt = 1.0f
 
@@ -62,7 +62,8 @@ object Camera {
         }
         val origloc = loc clone
         val vel = (loc - prevloc) / prevdt
-        val frictionAcc = -vel * friction
+        // XXX wanted to remove vel.z here, clearly there's a bug
+        val frictionAcc = -Vec3f(vel.x, vel.y, vel.z) * friction
         val acc = userAcc + frictionAcc + gravity
         val trymove = vel + acc
 
@@ -73,22 +74,36 @@ object Camera {
             case YY => Vec3f(full.x, partial.y, full.z)
             case ZZ => Vec3f(full.x, full.y, partial.z)
         }
-        // XXX Arrgh this is so close to working.  The problem is that
-        // it only works for one 'Axis' (the first hit) which is always
-        // Z so you pass right through blocks sideways.  I don't feel
-        // like putting in a loop over all axes for this hack collision...
-        World.raycast(loc, trymove, elapsedTime) match {
-            case World.Hit(blockloc, when, ZZ) =>
-                loc += trimAxis(trymove * elapsedTime, trymove * when, ZZ)
-                prevloc = trimAxis(origloc, loc, ZZ)
-            case World.Hit(blockloc, when, axis) =>
-                loc += trimAxis(trymove * elapsedTime, trymove * when, axis)
-                prevloc = trimAxis(origloc, loc, axis)
-            case World.Miss =>
-                loc += trymove * elapsedTime
-                prevloc = origloc
+        // XXX tried to leave out escapecount but still hit an inf loop
+        var escapecount = 0
+        /**
+         * Helper function:  Collide 'mybox' with world along 'trymove'.
+         * If already inside a block, first "escape".
+         * If anything is hit, move until that hit, then zero that movement
+         * axis and try to complete the move.  World.sweep ignores hits
+         * along non-moving axes
+         */
+        def collide(mybox: AABB, loc: Vec3f, trymove: Vec3f): Vec3f = {
+            World.sweep(mybox, trymove) match {
+                case World.Hit(blockloc, 0f, _) =>
+                    escapecount += 1
+                    if (escapecount < 10) {
+                        val moved = AABB.fromBlock(blockloc).escape(mybox)
+                        collide(mybox + moved, loc + moved, trymove - moved)
+                    } else
+                        loc
+                case World.Hit(blockloc, when, axis) =>
+                    val moved = trymove * when
+                    collide(mybox + moved, loc + moved,
+                            trimAxis(trymove - moved, Vec3f.Zero, axis))
+                case World.Miss =>
+                    loc + trymove
+            }
         }
+
+        loc = collide(collisionBox, loc, trymove * elapsedTime)
         prevdt = elapsedTime
+        prevloc = origloc
     }
 
     def climb(d : Float) {
