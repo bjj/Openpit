@@ -141,29 +141,30 @@ class AABB (a: Vec3f, b: Vec3f) {
      *         given vector.
      */
     final def sweep(other: AABB, v: Vec3f): Option[AxialDistance] = {
+        import Float.{MinValue, MaxValue}
         def overlap(axis: Axis) =
             ! ((max(axis) < other.min(axis)) || (min(axis) > other.max(axis)))
         def starthit(axis: Axis) = AxialDistance(axis,
             if (v(axis) < 0)
-                ((max(axis) - other.min(axis)) / v(axis)) max 0f
+                ((max(axis) - other.min(axis)) / v(axis))
             else if (v(axis) > 0)
-                ((min(axis) - other.max(axis)) / v(axis)) max 0f
+                ((min(axis) - other.max(axis)) / v(axis))
             else
-                if (overlap(axis)) 0f else Float.MaxValue
+                if (overlap(axis)) MinValue else MaxValue
         )
         def endhit(axis: Axis) = AxialDistance(axis,
             if (v(axis) < 0)
-                ((min(axis) - other.max(axis)) / v(axis)) max 0f
+                ((min(axis) - other.max(axis)) / v(axis))
             else if (v(axis) > 0)
-                ((max(axis) - other.min(axis)) / v(axis)) max 0f
+                ((max(axis) - other.min(axis)) / v(axis))
             else
-                if (overlap(axis)) Float.MaxValue else 0f
+                if (overlap(axis)) MaxValue else MinValue
         )
 
         val start = starthit(XX) max starthit(YY) max starthit(ZZ)
         val end = endhit(XX) min endhit(YY) min endhit(ZZ)
-        if (start < end && start <= 1.0f)
-            Some(start)
+        if (start < end && end >= 0.0f && start <= 1.0f)
+            Some(AxialDistance(start.axis, start.distance max 0f))
         else
             None
     }
