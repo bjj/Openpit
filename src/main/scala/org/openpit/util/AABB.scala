@@ -14,6 +14,9 @@ object Axes extends Enumeration {
 import Axes._
 
 final case class AxialDistance(axis: Axis, distance: Float) {
+    final def absmin(other: AxialDistance): AxialDistance = {
+        if (abs(other.distance) < abs(distance)) other else this
+    }
     final def min(other: AxialDistance): AxialDistance = {
         if (other.distance < distance) other else this
     }
@@ -170,16 +173,21 @@ class AABB (a: Vec3f, b: Vec3f) {
     }
 
     /**
-     * Return a vector which escapes from this AABB
+     * Return a vector which escapes from this AABB by moving along
+     * whichever axis requires the shortest move.
      */
     def escape(other: AABB) = {
+        def overlap(axis: Axis) =
+            ! ((max(axis) < other.min(axis)) || (min(axis) > other.max(axis)))
         def move(axis: Axis) = AxialDistance(axis, 
-            if (center(axis) > other.center(axis))
-                (min(axis) - other.max(axis) - 0.01f) min 0f
+            if (!overlap(axis))
+                0f
+            else if (center(axis) > other.center(axis))
+                -abs(min(axis) - other.max(axis)) - 0.01f
             else
-                (max(axis) - other.min(axis) + 0.01f) max 0f
+                abs(max(axis) - other.min(axis)) + 0.01f
         )
-        val m = move(XX) min move(YY) min move(ZZ)
+        val m = move(XX) absmin move(YY) absmin move(ZZ)
         var result = Vec3f(0,0,0)
         result(m.axis) = m.distance
         result
