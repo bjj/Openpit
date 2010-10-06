@@ -20,8 +20,8 @@ object Camera {
 
     val gravity = Vec3f(0f, 0f, -9.8f) // m/s^2
     val jumpAcc = Vec3f(0f, 0f, 18f)   // m/s^2
-    val walkAcc = 5f                   // m/s^2
-    val friction = 0.95f
+    val walkAcc = 50f                  // m/s^2 ??
+    val stopTime = 0.1f // s
 
     var usingGravity = false
 
@@ -63,9 +63,9 @@ object Camera {
         val origloc = loc clone
         val vel = (loc - prevloc) / prevdt
         // XXX wanted to remove vel.z here, clearly there's a bug
-        val frictionAcc = -Vec3f(vel.x, vel.y, vel.z) * friction
+        val frictionAcc = -Vec3f(vel.x, vel.y, 0) / stopTime
         val acc = userAcc + frictionAcc + gravity
-        val trymove = vel + acc
+        val trymove = vel + acc * elapsedTime
 
         import org.openpit.world.World
         import org.openpit.util.Axes._
