@@ -55,8 +55,8 @@ object Camera {
         val userAcc = move match {
             case Some(m) =>
                 aim(m.yaw, m.pitch)
-                walkAcc * rotateVector(lookat, qyaw(0)) * m.dy +
-                walkAcc * rotateVector(lookat, qyaw(-90)) * m.dx +
+                walkAcc * rotateVector(lookat, qyaw(0)) * m.walk.y +
+                walkAcc * rotateVector(lookat, qyaw(-90)) * m.walk.x +
                 (if (m.jump && canJump) jumpAcc else Vec3f.Zero)
             case None => Vec3f.Zero
         }

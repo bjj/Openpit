@@ -63,7 +63,7 @@ object Main {
             case m: Move =>
                 Camera.update(elapsedTime.toFloat, Some(m))
 
-                Camera.climb(m.dz * movementFloat)
+                Camera.climb(m.walk.z * movementFloat)
 
                 // Update selection point
                 val reach    = 5f

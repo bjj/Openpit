@@ -3,11 +3,13 @@ package org.openpit.ui
 import org.lwjgl.opengl.Display
 import org.lwjgl.input.{Keyboard, Mouse}
 
+import simplex3d.math.intm._
+
 object Input {
 
     sealed abstract class Input
     case object Quit extends Input
-    case class Move(val dx: Int, val dy: Int, val dz: Int,
+    case class Move(val walk: Vec3i,
                     val yaw: Float, val pitch: Float,
                     val jump: Boolean, val crouch: Boolean,
                     val tool: Boolean, val use: Boolean) extends Input
@@ -57,9 +59,9 @@ object Input {
                 else                 0
             }
 
-            Move(dx = dir(KEY_LEFT, KEY_RIGHT),
-                 dy = dir(KEY_BACKWARD, KEY_FORWARD),
-                 dz = dir(KEY_UP, KEY_DOWN),
+            Move(walk = Vec3i(dir(KEY_LEFT, KEY_RIGHT),
+                              dir(KEY_BACKWARD, KEY_FORWARD),
+                              dir(KEY_UP, KEY_DOWN)),
                  yaw = -Mouse.getDX.toFloat * LOOK_SENSITIVITY,
                  pitch = Mouse.getDY.toFloat * LOOK_SENSITIVITY * LOOK_INVERT,
                  jump = Keyboard.isKeyDown(KEY_JUMP),
