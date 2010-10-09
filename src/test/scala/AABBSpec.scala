@@ -130,4 +130,32 @@ object AABBSpec extends Properties("AABB") {
         val escape = aa.escape(bb)
         ("escape vec " + escape) |: !(aa intersects (bb + escape))
     }
+
+    val escapeMinThresh = 1.0f - normalize(Vec3f.One).x * 0.999f + 0.01f
+    property("escapes minimum") = forAll { (a: Vec3i) =>
+        val push = normalize(a) * 0.999f
+        val aa = new AABB(Vec3f.Zero, Vec3f.One)
+        val bb = aa + push
+        val escape = aa.escape(bb)
+        (("escape works " + escape) |: !(aa intersects (bb + escape))) &&
+        (("escape short " + length(escape)) |: length(escape) <= escapeMinThresh)
+    }
+
+    property("escapes tiny") = forAll { (a: Int) =>
+        val face = abs(a) % 6
+        var push = face match {
+            case 0 => -Vec3f.UnitX
+            case 1 =>  Vec3f.UnitX
+            case 2 => -Vec3f.UnitY
+            case 3 =>  Vec3f.UnitY
+            case 4 => -Vec3f.UnitZ
+            case 5 =>  Vec3f.UnitZ
+        }
+        push *= 0.99f
+        val aa = new AABB(Vec3f.Zero, Vec3f.One)
+        val bb = aa + push
+        val escape = aa.escape(bb)
+        (("escape works " + escape) |: !(aa intersects (bb + escape))) &&
+        (("escape short " + escape) |: length(escape) <= 0.02f)
+    }
 }
