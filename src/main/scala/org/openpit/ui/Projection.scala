@@ -13,7 +13,7 @@ object Projection {
     private def setup_perspective() {
         import org.openpit.ui.Camera
         // view frustrum should track fog setup
-        GLU.gluPerspective(40, Window.aspect, 0.1f, 100)
+        GLU.gluPerspective(40, Window.aspect, 0.001f, 100)
         Camera.look()
     }
 
