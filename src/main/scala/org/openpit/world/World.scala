@@ -9,7 +9,7 @@ import org.openpit.util._
 object World extends Octree[Block] {
 
     def generate() {
-        noisy(20000, Vec2i(-50, -50), Vec2i(25, 25))
+        plain()
     }
 
     def plain() {
@@ -31,41 +31,6 @@ object World extends Octree[Block] {
 
     def min(x : Int, y : Int) = {
        if (x > y) y else x
-    }
-
-  /**
-   * Render a region of a flat, noisy world in the 2D box (from, to).
-   * World is "defined" in the box (0 - worldsize, 0 - worldsize, -100) to (worldsize, worldsize, 100)
-   */
-    def noisy(worldsize : Int, from : Vec2i, to : Vec2i) {
-      val noise = new PerlinNoise2D()
-      val noise3 = new PerlinNoise3D()
-      noise.init()
-      noise3.init()
-      val mult = worldsize / 50.0f
-      System.out.println("mult = " + mult)
-      for(x <- from.x to to.x; y <- from.y to to.y) {
-          val fx = ((x + worldsize) / (worldsize*2.0f) * mult)
-          val fy = ((y + worldsize) / (worldsize*2.0f) * mult)
-          val n = noise(fx, fy)
-          val h = (floor(100f * n) - 50f).toInt
-          this(x, y, -51) = Stone()
-          for(z <- -50 to h) {
-            val fz = ((z + 100.0f) / 200.0f) * mult
-            val nz = noise3(fx * 20f, fy * 20f, fz * 20.0f)
-            if(z < (h -2)) {
-              if(nz > -0.2f)
-                 this(x, y, z) =   Stone()
-//              else
-//                 this(x, y, z) = Glass()
-            } else {
-              if(nz > -0.25f)
-                 this(x, y, z) =  Grass()
-//              else
-//                 this(x, y, z) = Glass()
-            }
-          }
-      }
     }
 
     def put(x: Int, y: Int, z: Int, b: Block) = {

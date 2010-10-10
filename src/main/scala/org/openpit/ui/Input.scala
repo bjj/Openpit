@@ -15,6 +15,7 @@ object Input {
                     val tool: Boolean, val use: Boolean) extends Input
     case object Inventory extends Input
     case object Menu extends Input
+    case class WorldGen(val scale : Float, val yaw: Float, val pitch: Float) extends Input
 
     def init() {
         Keyboard.create()
@@ -42,6 +43,18 @@ object Input {
     var KEY_UP = Keyboard.KEY_Z
     var KEY_DOWN = Keyboard.KEY_X
 
+
+    var KEY_WORLD_GEN_UP = Keyboard.KEY_U
+    var KEY_WORLD_GEN_DOWN = Keyboard.KEY_J
+
+  def dir(l: Int, r: Int) = {
+      val ldown = Keyboard.isKeyDown(l)
+      val rdown = Keyboard.isKeyDown(r)
+      if (ldown && rdown)  0
+      else if (ldown)     -1
+      else if (rdown)      1
+      else                 0
+  }
     def input() = {
         if (Keyboard.isKeyDown(KEY_MENU)) {
             Quit // Menu
@@ -49,15 +62,11 @@ object Input {
             Quit
         } else if (Keyboard.isKeyDown(KEY_INVENTORY)) {
             Inventory
+        } else if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+            WorldGen(scale = dir(KEY_WORLD_GEN_UP, KEY_WORLD_GEN_DOWN) * 100,
+                     yaw = -Mouse.getDX.toFloat * LOOK_SENSITIVITY,
+                     pitch = Mouse.getDY.toFloat * LOOK_SENSITIVITY * LOOK_INVERT)
         } else {
-            def dir(l: Int, r: Int) = {
-                val ldown = Keyboard.isKeyDown(l)
-                val rdown = Keyboard.isKeyDown(r)
-                if (ldown && rdown)  0
-                else if (ldown)     -1
-                else if (rdown)      1
-                else                 0
-            }
 
             Move(walk = Vec3i(dir(KEY_LEFT, KEY_RIGHT),
                               dir(KEY_BACKWARD, KEY_FORWARD),
