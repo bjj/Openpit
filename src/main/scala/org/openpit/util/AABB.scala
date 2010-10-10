@@ -175,17 +175,22 @@ class AABB (a: Vec3f, b: Vec3f) {
     /**
      * Return a vector which escapes from this AABB by moving along
      * whichever axis requires the shortest move.
+     *
+     * @param  other object which should move away from this AABB
+     * @param  extra amount to move (if 0, objects will be just touching
+     *         after move)
+     * @result vector to move for clearance
      */
-    def escape(other: AABB) = {
+    def escape(other: AABB, extra: Float = 0f) = {
         def overlap(axis: Axis) =
             ! ((max(axis) < other.min(axis)) || (min(axis) > other.max(axis)))
         def move(axis: Axis) = AxialDistance(axis, 
             if (!overlap(axis))
                 0f
             else if (center(axis) > other.center(axis))
-                -abs(min(axis) - other.max(axis)) - 0.01f
+                -abs(min(axis) - other.max(axis)) - extra
             else
-                abs(max(axis) - other.min(axis)) + 0.01f
+                abs(max(axis) - other.min(axis)) + extra
         )
         val m = move(XX) absmin move(YY) absmin move(ZZ)
         var result = Vec3f(0,0,0)

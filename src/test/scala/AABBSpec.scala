@@ -120,14 +120,14 @@ object AABBSpec extends Properties("AABB") {
 
     property("escapes self") = forAll { (a: Vec3i, b: Vec3i) =>
         val aabb = new AABB(a, b)
-        val escape = aabb.escape(aabb)
+        val escape = aabb.escape(aabb, 0.01f)
         ("escape vec " + escape) |: !(aabb intersects (aabb + escape))
     }
 
     property("escapes any") = forAll { (a: Vec3i, b: Vec3i, c: Vec3i, d: Vec3i) =>
         val aa = new AABB(a, b)
         val bb = new AABB(c, d)
-        val escape = aa.escape(bb)
+        val escape = aa.escape(bb, 0.01f)
         ("escape vec " + escape) |: !(aa intersects (bb + escape))
     }
 
@@ -136,7 +136,7 @@ object AABBSpec extends Properties("AABB") {
         val push = normalize(a) * 0.999f
         val aa = new AABB(Vec3f.Zero, Vec3f.One)
         val bb = aa + push
-        val escape = aa.escape(bb)
+        val escape = aa.escape(bb, 0.01f)
         (("escape works " + escape) |: !(aa intersects (bb + escape))) &&
         (("escape short " + length(escape)) |: length(escape) <= escapeMinThresh)
     }
@@ -154,7 +154,7 @@ object AABBSpec extends Properties("AABB") {
         push *= 0.99f
         val aa = new AABB(Vec3f.Zero, Vec3f.One)
         val bb = aa + push
-        val escape = aa.escape(bb)
+        val escape = aa.escape(bb, 0.01f)
         (("escape works " + escape) |: !(aa intersects (bb + escape))) &&
         (("escape short " + escape) |: length(escape) <= 0.02f)
     }
