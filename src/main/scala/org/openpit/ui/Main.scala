@@ -43,12 +43,13 @@ object Main {
     var lastTicks = Sys.getTime()
     def elapsedTime() = {
         val nowTicks = Sys.getTime()
-        (nowTicks - lastTicks) match {
-            case 0     => 0.0f
-            case ticks => 
-                lastTicks = nowTicks
-                ticks * secondsPerTick
-        }
+        val delta = nowTicks - lastTicks
+        val elapsed = delta * secondsPerTick
+        if (elapsed >= 0.01f) {
+            lastTicks = nowTicks
+            elapsed
+        } else
+            0f
     }
 
     def handleInput(elapsedTime: Float) {
