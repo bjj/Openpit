@@ -76,13 +76,13 @@ object Main {
                  Window.update()
                }
             }
-            case m: Move =>
+           case m: Move =>
                 Camera.update(elapsedTime.toFloat, Some(m))
 
                 Camera.climb(m.walk.z * movementFloat)
 
                 // Update selection point
-                val reach    = 5f
+                val reach = 5f
                 val minreach = 0.3f
                 var hit = World.raycast(Camera.eye, Camera.direction, reach)
 
