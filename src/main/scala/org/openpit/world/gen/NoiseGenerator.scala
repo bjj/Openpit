@@ -9,8 +9,10 @@ import org.openpit.util._
 
 object NoiseGenerator {
   var height = 100
-  var noise3scale = 3900.0f
+  var noise3scale = 20000.0f
   var noise3rotate = ConstQuat4f(quaternion(radians(30.0f), Vec3f.UnitX) * quaternion(radians(30.0f), Vec3f.UnitY) * quaternion(radians(30.0f), Vec3f.UnitZ))
+
+  var invert = true
 
   val noise2 = new PerlinNoise2D()
   val noise3 = new PerlinNoise3D()
@@ -64,10 +66,16 @@ object NoiseGenerator {
             val nr = ConstVec3f(nv.x, nv.y, ((z + height) / 2f*height))
             val nr2 = nr * noise3scale
             val rnr = noise3rotate.rotateVector(nr2)
-            val nz = noise3(rnr.x, rnr.y, rnr.z / 10.0f)
-            if(nz > -0.2f) {
-              counter += 1
-              World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass() else (if (h <= (sealevel+2)) Sand() else Stone())
+            val nz = noise3(rnr.x * 3.0f, rnr.y * 3.0f, rnr.z / 15.0f)
+            if(invert) {
+                if(nz < -0.4f) {
+                   World(x, y, z) = Stone()
+                }
+            } else {
+                if(nz > -0.4f) {
+                  counter += 1
+                  World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass() else (if (h <= (sealevel+2)) Sand() else Stone())
+                }
             }
           }
       }

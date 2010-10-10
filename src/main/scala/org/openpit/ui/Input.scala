@@ -15,7 +15,7 @@ object Input {
                     val tool: Boolean, val use: Boolean) extends Input
     case object Inventory extends Input
     case object Menu extends Input
-    case class WorldGen(val scale : Float, val yaw: Float, val pitch: Float) extends Input
+    case class WorldGen(val scale : Float, val yaw: Float, val pitch: Float, val invert : Boolean) extends Input
 
     def init() {
         Keyboard.create()
@@ -46,6 +46,7 @@ object Input {
 
     var KEY_WORLD_GEN_UP = Keyboard.KEY_U
     var KEY_WORLD_GEN_DOWN = Keyboard.KEY_J
+    var KEY_WORLD_GEN_INVERT = Keyboard.KEY_K
 
   def dir(l: Int, r: Int) = {
       val ldown = Keyboard.isKeyDown(l)
@@ -64,6 +65,7 @@ object Input {
             Inventory
         } else if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
             WorldGen(scale = dir(KEY_WORLD_GEN_UP, KEY_WORLD_GEN_DOWN) * 100,
+                     invert = Keyboard.isKeyDown(KEY_WORLD_GEN_INVERT),
                      yaw = -Mouse.getDX.toFloat * LOOK_SENSITIVITY,
                      pitch = Mouse.getDY.toFloat * LOOK_SENSITIVITY * LOOK_INVERT)
         } else {
