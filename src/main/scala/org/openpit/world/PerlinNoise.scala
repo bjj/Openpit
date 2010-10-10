@@ -31,7 +31,7 @@ class PerlinNoise2D {
     }
   }
 
-  def apply(x : Float, y : Float) = {
+  def noise(x : Float, y : Float) = {
      val grid1 = Vec2i(floor(x).toInt, floor(y).toInt)
      val grid2 = Vec2i(grid1.x + 1, grid1.y + 1)
 
@@ -58,6 +58,20 @@ class PerlinNoise2D {
 
      ix1 - wy * (ix1 - ix2)
   }
+
+  def apply(x : Float, y : Float) = {
+     var total = 0.0f
+     val p = 0.30f
+     val zx = x * 100.0f
+     val zy = y * 200.0f
+     for(i <- 0 to 9) {
+          val freq = pow(2, i)
+          val amp = pow(p, i)
+          total += noise(zx * freq, zy *freq) * amp
+     }
+     total
+  }
+  
 
 }
 
