@@ -88,7 +88,7 @@ object Camera {
                 case World.Hit(blockloc, 0f, _) =>
                     escapecount += 1
                     if (escapecount < 10) {
-                        val moved = AABB.fromBlock(blockloc).escape(mybox)
+                        val moved = AABB.fromBlock(blockloc).escape(mybox, 0.01f)
                         collide(mybox + moved, loc + moved, trymove - moved)
                     } else
                         loc
