@@ -7,4 +7,5 @@ case class Solid(color: Int) extends Block
 case class Grass() extends Block
 case class Stone() extends Block
 case class Glass() extends Block
+case class Water() extends Block
 case class Cobblestone() extends Block

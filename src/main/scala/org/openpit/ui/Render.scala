@@ -11,14 +11,17 @@ import org.openpit.world.blocks._
 
 object Render {
 
-    def occluded(loc: Vec3i, dir: ConstVec3i) = {
-        World.get(loc + dir).getOrElse(Air) match {
-                case Air => false
-                case Glass() => false // glass should self-occlude
-                case _ => true
+    def cube(loc: Vec3i, b: Block, top: Vec2f, side: Vec2f, bot: Vec2f) {
+
+        def occluded(dir: ConstVec3i) = {
+            World.get(loc + dir).getOrElse(Air) match {
+                    case Air => false
+                    case Glass() => b.isInstanceOf[Glass]
+                    case Water() => b.isInstanceOf[Water]
+                    case _ => true
+            }
         }
-    }
-    def cube(loc: Vec3i, top: Vec2f, side: Vec2f, bot: Vec2f) {
+
         val x = loc.x
         val y = loc.y
         val z = loc.z
@@ -31,7 +34,7 @@ object Render {
         var U = u + 1f/16f
         var V = v + 1f/16f
 
-        if (!occluded(loc, ConstVec3i(0,0,1))) {
+        if (!occluded(ConstVec3i(0,0,1))) {
             glTexCoord2f(u, V); glVertex3i(x,Y,Z)
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
@@ -43,35 +46,35 @@ object Render {
         U = u + 1f/16f
         V = v + 1f/16f
 
-        if (!occluded(loc, ConstVec3i(0,-1,0))) {
+        if (!occluded(ConstVec3i(0,-1,0))) {
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
             glTexCoord2f(u, V); glVertex3i(x,y,z)
             glTexCoord2f(U, V); glVertex3i(X,y,z)
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
         }
 
-        if (!occluded(loc, ConstVec3i(1,0,0))) {
+        if (!occluded(ConstVec3i(1,0,0))) {
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
             glTexCoord2f(U, V); glVertex3i(X,y,z)
             glTexCoord2f(u, V); glVertex3i(X,Y,z)
             glTexCoord2f(u, v); glVertex3i(X,Y,Z)
         }
 
-        if (!occluded(loc, ConstVec3i(0,1,0))) {
+        if (!occluded(ConstVec3i(0,1,0))) {
             glTexCoord2f(u, v); glVertex3i(X,Y,Z)
             glTexCoord2f(u, V); glVertex3i(X,Y,z)
             glTexCoord2f(U, V); glVertex3i(x,Y,z)
             glTexCoord2f(U, v); glVertex3i(x,Y,Z)
         }
 
-        if (!occluded(loc, ConstVec3i(-1,0,0))) {
+        if (!occluded(ConstVec3i(-1,0,0))) {
             glTexCoord2f(U, v); glVertex3i(x,Y,Z)
             glTexCoord2f(U, V); glVertex3i(x,Y,z)
             glTexCoord2f(u, V); glVertex3i(x,y,z)
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
         }
 
-        if (!occluded(loc, ConstVec3i(0,0,-1))) {
+        if (!occluded(ConstVec3i(0,0,-1))) {
             u = bot.x
             v = bot.y
             U = u + 1f/16f
@@ -90,21 +93,24 @@ object Render {
     val stoneAll = Vec2f(0, 1f/16f)
     val glassAll = Vec2f(0, 2f/16f)
     val cobblestoneAll = Vec2f(1f/16f, 1f/16f)
+    val waterAll = Vec2f(2f/16f, 2f/16f)
 
-    def grass(loc: Vec3i) { cube(loc, grassTop, grassSide, grassBot) }
-    def stone(loc: Vec3i) { cube(loc, stoneAll, stoneAll, stoneAll) }
-    def glass(loc: Vec3i) { cube(loc, glassAll, glassAll, glassAll) }
-    def cobblestone(loc: Vec3i) { cube(loc, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
+    def grass(loc: Vec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
+    def stone(loc: Vec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
+    def glass(loc: Vec3i, b: Block) { cube(loc, b, glassAll, glassAll, glassAll) }
+    def cobblestone(loc: Vec3i, b: Block) { cube(loc, b, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
+    def water(loc: Vec3i, b: Block) { cube(loc, b, waterAll, waterAll, waterAll) }
 
     def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
-        case Grass() => grass(l)
-        case Stone() => stone(l)
-        case Cobblestone() => cobblestone(l)
+        case Grass() => grass(l, b)
+        case Stone() => stone(l, b)
+        case Cobblestone() => cobblestone(l, b)
         case _ => Unit
     }
 
     def renderTranslucentBlock(l: Vec3i, b: Block) = b match {
-        case Glass() => glass(l)
+        case Glass() => glass(l, b)
+        case Water() => water(l, b)
         case _ => Unit
     }
 
