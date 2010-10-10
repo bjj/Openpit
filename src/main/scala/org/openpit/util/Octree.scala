@@ -111,6 +111,13 @@ case class Octree[T:Manifest] (c: Vec3i = ConstVec3i(0,0,0)) extends IOctree[T](
     var tree = OctreeNode[T](c, 2)
 
     /**
+     * Clear the octree of everything
+     */
+    def clear() {
+        tree = OctreeNode[T](tree.center, 2)
+    }
+
+    /**
      * Expand Octree one level, shifting the center toward p
      */
     protected def expand(p: Vec3i) {
