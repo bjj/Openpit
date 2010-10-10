@@ -29,13 +29,17 @@ object World extends Octree[Block] {
             this(15, y, z) = Glass()
     }
 
+    def min(x : Int, y : Int) = {
+       if (x > y) y else x
+    }
+
     def put(x: Int, y: Int, z: Int, b: Block) = {
         this(Vec3i(x,y,z)) = b
     }
 
-    /**
-     * A case class Shot is Hit or Miss with a world location and distance
-     */
+  /**
+   *  A case class Shot is Hit or Miss with a world location and distance
+   */
     abstract class Shot extends Ordered[Shot]
     case class Hit(val loc: Vec3i, val distance: Float, val axis: Axes.Axis) extends Shot {
         def compare(that: Shot) = that match {

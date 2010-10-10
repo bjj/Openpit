@@ -7,6 +7,7 @@ import org.lwjgl.input.{Keyboard, Mouse}
 import org.openpit.ui.console.FPS
 import org.openpit.world.World
 import simplex3d.math.floatm.Vec3f
+import org.openpit.world.gen.NoiseGenerator
 
 object Main {
     val unitsPerSecond = 10.0  // XXX what speed
@@ -30,6 +31,9 @@ object Main {
 
     def init() {
         Window.init()
+        //World.generate()
+        NoiseGenerator.init()
+        //NoiseGenerator.generate()
         World.generate()
         Window.update() // XXX should be Layers.update() or something
         Input.init()
@@ -61,13 +65,24 @@ object Main {
             case Quit => finished = true
             case Inventory => Unit
             case Menu => Unit
-            case m: Move =>
+            case m : WorldGen => {
+               if(m.scale > 0 || m.scale < 0) {
+                 NoiseGenerator.noise3scale += m.scale
+                 // System.out.println("scale = " + m.scale + "; " + NoiseGenerator.noise3scale)
+                 //Camera.loc = Vec3f(20.5f, 20.5f, 12.5f)
+                 World.clear()
+                 //World.generate()
+                 NoiseGenerator.generate()
+                 Window.update()
+               }
+            }
+           case m: Move =>
                 Camera.update(elapsedTime.toFloat, Some(m))
 
                 Camera.climb(m.walk.z * movementFloat)
 
                 // Update selection point
-                val reach    = 5f
+                val reach = 5f
                 val minreach = 0.3f
                 var hit = World.raycast(Camera.eye, Camera.direction, reach)
 
