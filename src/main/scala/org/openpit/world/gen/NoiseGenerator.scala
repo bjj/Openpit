@@ -67,7 +67,7 @@ object NoiseGenerator {
             val nz = noise3(rnr.x, rnr.y, rnr.z / 10.0f)
             if(nz > -0.2f) {
               counter += 1
-              World(x, y, z) = if (z > (h-3)) Grass() else Stone()
+              World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass() else (if (h <= (sealevel+2)) Sand() else Stone())
             }
           }
       }
