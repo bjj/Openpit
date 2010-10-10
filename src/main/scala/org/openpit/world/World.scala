@@ -16,7 +16,9 @@ object World extends Octree[Block] {
         // some random test objects
         for (x <- -20 until 70; y <- -20 until 70)
             this(x, y, 6) = Water()
-        for (z <- 5 to 10; x <- z until 50-z; y <- z until 50-z)
+        for (z <- 5 to 6; x <- z until 50-z; y <- z until 50-z)
+            this(x, y, z) = Sand()
+        for (z <- 7 to 10; x <- z until 50-z; y <- z until 50-z)
             this(x, y, z) = Grass()
         this(10,10,11) = Stone()
         this(12,10,13) = Stone()

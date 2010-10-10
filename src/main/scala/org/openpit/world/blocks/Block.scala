@@ -9,3 +9,4 @@ case class Stone() extends Block
 case class Glass() extends Block
 case class Water() extends Block
 case class Cobblestone() extends Block
+case class Sand() extends Block

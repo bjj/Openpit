@@ -112,17 +112,20 @@ object Render {
     val glassAll = Vec2f(0, 2f/16f)
     val cobblestoneAll = Vec2f(1f/16f, 1f/16f)
     val waterAll = Vec2f(2f/16f, 2f/16f)
+    val sandAll = Vec2f(3f/16f, 0f/16f)
 
     def grass(loc: Vec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
     def stone(loc: Vec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
     def glass(loc: Vec3i, b: Block) { cube(loc, b, glassAll, glassAll, glassAll) }
     def cobblestone(loc: Vec3i, b: Block) { cube(loc, b, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
     def water(loc: Vec3i, b: Block) { cube(loc, b, waterAll, waterAll, waterAll) }
+    def sand(loc: Vec3i, b: Block) { cube(loc, b, sandAll, sandAll, sandAll) }
 
     def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
         case Grass() => grass(l, b)
         case Stone() => stone(l, b)
         case Cobblestone() => cobblestone(l, b)
+        case Sand() => sand(l, b)
         case _ => Unit
     }
 
