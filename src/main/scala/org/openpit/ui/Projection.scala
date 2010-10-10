@@ -10,10 +10,11 @@ object Projection {
         glOrtho(0, Window.width, Window.height, 0, 0, 1)
     }
 
+    val maxRenderDistance = 150f
     private def setup_perspective() {
         import org.openpit.ui.Camera
         // view frustrum should track fog setup
-        GLU.gluPerspective(40, Window.aspect, 0.001f, 100)
+        GLU.gluPerspective(40, Window.aspect, 0.001f, maxRenderDistance)
         Camera.look()
     }
 
