@@ -13,6 +13,18 @@ object Render {
 
     def cube(loc: Vec3i, b: Block, top: Vec2f, side: Vec2f, bot: Vec2f) {
 
+        def light(dir: ConstVec3i, dim: Int = 1) {
+            if (dim == 6)
+                glColor3f(1.0f, 1.0f, 1.0f)
+            else {
+                World.get(loc + dir + ConstVec3i(0,0,1)*dim).getOrElse(Air) match {
+                        case Air => light(dir, dim + 1)
+                        case Glass() => light(dir, dim + 1)
+                        case _ => val bright = dim.toFloat * 0.15f; glColor3f(bright, bright, bright)
+                }
+            }
+        }
+
         def occluded(dir: ConstVec3i) = {
             World.get(loc + dir).getOrElse(Air) match {
                     case Air => false
@@ -35,6 +47,7 @@ object Render {
         var V = v + 1f/16f
 
         if (!occluded(ConstVec3i(0,0,1))) {
+            light(ConstVec3i(0,0,0))
             glTexCoord2f(u, V); glVertex3i(x,Y,Z)
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
@@ -47,6 +60,7 @@ object Render {
         V = v + 1f/16f
 
         if (!occluded(ConstVec3i(0,-1,0))) {
+            light(ConstVec3i(0,-1, 0))
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
             glTexCoord2f(u, V); glVertex3i(x,y,z)
             glTexCoord2f(U, V); glVertex3i(X,y,z)
@@ -54,6 +68,7 @@ object Render {
         }
 
         if (!occluded(ConstVec3i(1,0,0))) {
+            light(ConstVec3i(1,0, 0))
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
             glTexCoord2f(U, V); glVertex3i(X,y,z)
             glTexCoord2f(u, V); glVertex3i(X,Y,z)
@@ -61,6 +76,7 @@ object Render {
         }
 
         if (!occluded(ConstVec3i(0,1,0))) {
+            light(ConstVec3i(0,1, 0))
             glTexCoord2f(u, v); glVertex3i(X,Y,Z)
             glTexCoord2f(u, V); glVertex3i(X,Y,z)
             glTexCoord2f(U, V); glVertex3i(x,Y,z)
@@ -68,6 +84,7 @@ object Render {
         }
 
         if (!occluded(ConstVec3i(-1,0,0))) {
+            light(ConstVec3i(-1,0, 0))
             glTexCoord2f(U, v); glVertex3i(x,Y,Z)
             glTexCoord2f(U, V); glVertex3i(x,Y,z)
             glTexCoord2f(u, V); glVertex3i(x,y,z)
@@ -75,6 +92,7 @@ object Render {
         }
 
         if (!occluded(ConstVec3i(0,0,-1))) {
+            light(ConstVec3i(0,0, 0))
             u = bot.x
             v = bot.y
             U = u + 1f/16f
