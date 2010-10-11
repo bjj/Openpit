@@ -1,0 +1,3 @@
+#!/bin/sh
+
+scala -cp `find lib lib_managed target -name '*.jar' -print | tr '\012' :`
