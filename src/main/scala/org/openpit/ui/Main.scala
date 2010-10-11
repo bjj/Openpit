@@ -57,6 +57,14 @@ object Main {
             0f
     }
 
+    def debugTime(s: String, f: => Unit) {
+        val start = Sys.getTime()
+        f
+        val end = Sys.getTime()
+        val duration = (end - start) * secondsPerTick
+        println(s + " took " + duration + "s")
+    }
+
     def handleInput(elapsedTime: Float) {
         var movement = unitsPerSecond * elapsedTime
         var movementFloat = movement.toFloat

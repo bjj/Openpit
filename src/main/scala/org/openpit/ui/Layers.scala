@@ -15,6 +15,9 @@ class GlassLayer(val bound: AABB) extends Layer3d(900, true) {
         if (bound intersects region)
             Render.updateDisplayList(displayList, bound)(Render.renderTranslucentBlock)
     }
+    override def dopaint() {
+        Render.gogo(displayList)
+    }
 }
 
 object SelectLayer extends Layer3d(500, true) {

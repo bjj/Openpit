@@ -41,7 +41,7 @@ object Window {
 
     def checkErrors() {
         for (err <- glErrors) {
-            printf("GL ERROR: %s\n", GLU.gluErrorString(err))
+            error("GL ERROR: %s\n" +  GLU.gluErrorString(err))
         }
     }
 

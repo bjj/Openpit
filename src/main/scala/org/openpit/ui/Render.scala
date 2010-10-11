@@ -1,6 +1,7 @@
 package org.openpit.ui
 
 import org.lwjgl.opengl.GL11._
+import org.lwjgl.opengl.GL15._
 import org.lwjgl.util.glu._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
@@ -12,18 +13,31 @@ import org.openpit.world.blocks._
 
 object Render {
 
+    var vb = new FloatBufferBuffer()
+    var eb = new IntBufferBuffer()
+    var vbos = Array.fill(10, 3)(0) // gross hack to associate VBOs with displaylists
+
     def cube(loc: Vec3i, b: Block, top: Vec2f, side: Vec2f, bot: Vec2f) {
 
-        def light(dir: ConstVec3i, dim: Int = 1) {
+/*
+        def light(dir: ConstVec3i, dim: Int = 1): Vec3f = {
             if (dim == 6)
-                glColor3f(1.0f, 1.0f, 1.0f)
+                Vec3f(1.0f, 1.0f, 1.0f)
             else {
                 World.get(loc + dir + ConstVec3i(0,0,1)*dim).getOrElse(Air) match {
+<<<<<<< HEAD:src/main/scala/org/openpit/ui/Render.scala
                         case Air | Glass | Water => light(dir, dim + 1)
                         case _ => val bright = dim.toFloat * 0.15f; glColor3f(bright, bright, bright)
+=======
+                        case Air => light(dir, dim + 1)
+                        case Glass() => light(dir, dim + 1)
+                        case _ => val bright = dim.toFloat * 0.15f; Vec3f(bright, bright, bright)
+>>>>>>> Gigantic ugly VBO hack.:src/main/scala/org/openpit/ui/Render.scala
                 }
             }
         }
+*/
+def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3f(1.0f,1.0f,1.0f)
 
         def occluded(dir: ConstVec3i) = {
             World.get(loc + dir).getOrElse(Air) match {
@@ -47,11 +61,11 @@ object Render {
         var V = v + 1f/16f
 
         if (!occluded(ConstVec3i(0,0,1))) {
-            light(ConstVec3i(0,0,0))
-            glTexCoord2f(u, V); glVertex3i(x,Y,Z)
-            glTexCoord2f(u, v); glVertex3i(x,y,Z)
-            glTexCoord2f(U, v); glVertex3i(X,y,Z)
-            glTexCoord2f(U, V); glVertex3i(X,Y,Z)
+            val l = light(ConstVec3i(0,0,0))
+            vb += Vec2f(u, V); vb += l; vb += Vec3f(x,Y,Z)
+            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,y,Z)
+            vb += Vec2f(U, v); vb += l; vb += Vec3f(X,y,Z)
+            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,Y,Z)
         }
 
         u = side.x
@@ -60,48 +74,48 @@ object Render {
         V = v + 1f/16f
 
         if (!occluded(ConstVec3i(0,-1,0))) {
-            light(ConstVec3i(0,-1, 0))
-            glTexCoord2f(u, v); glVertex3i(x,y,Z)
-            glTexCoord2f(u, V); glVertex3i(x,y,z)
-            glTexCoord2f(U, V); glVertex3i(X,y,z)
-            glTexCoord2f(U, v); glVertex3i(X,y,Z)
+            val l = light(ConstVec3i(0,-1, 0))
+            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,y,Z)
+            vb += Vec2f(u, V); vb += l; vb += Vec3f(x,y,z)
+            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,y,z)
+            vb += Vec2f(U, v); vb += l; vb += Vec3f(X,y,Z)
         }
 
         if (!occluded(ConstVec3i(1,0,0))) {
-            light(ConstVec3i(1,0, 0))
-            glTexCoord2f(U, v); glVertex3i(X,y,Z)
-            glTexCoord2f(U, V); glVertex3i(X,y,z)
-            glTexCoord2f(u, V); glVertex3i(X,Y,z)
-            glTexCoord2f(u, v); glVertex3i(X,Y,Z)
+            val l = light(ConstVec3i(1,0, 0))
+            vb += Vec2f(U, v); vb += l; vb += Vec3f(X,y,Z)
+            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,y,z)
+            vb += Vec2f(u, V); vb += l; vb += Vec3f(X,Y,z)
+            vb += Vec2f(u, v); vb += l; vb += Vec3f(X,Y,Z)
         }
 
         if (!occluded(ConstVec3i(0,1,0))) {
-            light(ConstVec3i(0,1, 0))
-            glTexCoord2f(u, v); glVertex3i(X,Y,Z)
-            glTexCoord2f(u, V); glVertex3i(X,Y,z)
-            glTexCoord2f(U, V); glVertex3i(x,Y,z)
-            glTexCoord2f(U, v); glVertex3i(x,Y,Z)
+            val l = light(ConstVec3i(0,1, 0))
+            vb += Vec2f(u, v); vb += l; vb += Vec3f(X,Y,Z)
+            vb += Vec2f(u, V); vb += l; vb += Vec3f(X,Y,z)
+            vb += Vec2f(U, V); vb += l; vb += Vec3f(x,Y,z)
+            vb += Vec2f(U, v); vb += l; vb += Vec3f(x,Y,Z)
         }
 
         if (!occluded(ConstVec3i(-1,0,0))) {
-            light(ConstVec3i(-1,0, 0))
-            glTexCoord2f(U, v); glVertex3i(x,Y,Z)
-            glTexCoord2f(U, V); glVertex3i(x,Y,z)
-            glTexCoord2f(u, V); glVertex3i(x,y,z)
-            glTexCoord2f(u, v); glVertex3i(x,y,Z)
+            val l = light(ConstVec3i(-1,0, 0))
+            vb += Vec2f(U, v); vb += l; vb += Vec3f(x,Y,Z)
+            vb += Vec2f(U, V); vb += l; vb += Vec3f(x,Y,z)
+            vb += Vec2f(u, V); vb += l; vb += Vec3f(x,y,z)
+            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,y,Z)
         }
 
         if (!occluded(ConstVec3i(0,0,-1))) {
-            light(ConstVec3i(0,0, 0))
+            val l = light(ConstVec3i(0,0, 0))
             u = bot.x
             v = bot.y
             U = u + 1f/16f
             V = v + 1f/16f
 
-            glTexCoord2f(U, V); glVertex3i(X,y,z)
-            glTexCoord2f(U, v); glVertex3i(x,y,z)
-            glTexCoord2f(u, v); glVertex3i(x,Y,z)
-            glTexCoord2f(u, V); glVertex3i(X,Y,z)
+            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,y,z)
+            vb += Vec2f(U, v); vb += l; vb += Vec3f(x,y,z)
+            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,Y,z)
+            vb += Vec2f(u, V); vb += l; vb += Vec3f(X,Y,z)
         }
     }
 
@@ -204,22 +218,67 @@ object Render {
     }
 
     def renderWorld(bound: AABB)(s: (Vec3i, Block)=>Unit) {
-        Texture.Terrain.bind(true)
-        glColor4f(1,1,1,1)
-        glBegin(GL_QUADS)
         World.foreach(bound)(s)
-        glEnd()
     }
 
     def updateDisplayList(list: Int, bound: AABB)(s: (Vec3i, Block) => Unit) = {
         Texture.Terrain // force load
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
-        glLoadIdentity()
-        glNewList(list, GL_COMPILE)
+        eb.clear()
+        vb.clear()
         renderWorld(bound)(s)
-        glEndList()
-        glPopMatrix()
+        vbos(list)(2) = vb.length / 8
+
+        if (vbos(list)(0) == 0) {
+            vbos(list)(0) = glGenBuffers()
+            vbos(list)(1) = glGenBuffers()
+        }
+        Window.checkErrors()
+        glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
+        Window.checkErrors()
+        glBufferData(GL_ARRAY_BUFFER, vb.length * 4, GL_DYNAMIC_DRAW)
+        Window.checkErrors()
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vb.result)
+        Window.checkErrors()
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos(list)(1))
+        Window.checkErrors()
+        println("vb: " + vb.length + " eb: " + eb.length + " to " + vbos(list)(0) +"/"+vbos(list)(1))
+        Window.checkErrors()
+        //glBufferData(GL_ELEMENT_ARRAY_BUFFER, eb, GL_DYNAMIC_DRAW)
+        Window.checkErrors()
+
+        Window.checkErrors()
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        Window.checkErrors()
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+    }
+
+    def gogo(list: Int) {
+        if (vbos(list)(0) != 0) {
+        Window.checkErrors()
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        Window.checkErrors()
+            glEnableClientState(GL_COLOR_ARRAY)
+        Window.checkErrors()
+            glEnableClientState(GL_VERTEX_ARRAY)
+        Window.checkErrors()
+        Window.checkErrors()
+            glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
+        Window.checkErrors()
+            glTexCoordPointer(2, GL_FLOAT, 8*4, 0*4)
+            glColorPointer(3, GL_FLOAT, 8*4, 2*4)
+            glVertexPointer(3, GL_FLOAT, 8*4, 5*4)
+        Window.checkErrors()
+            Texture.Terrain.bind(true)
+        Window.checkErrors()
+            glDrawArrays(GL_QUADS, 0, vbos(list)(2))
+        Window.checkErrors()
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+        Window.checkErrors()
+            glDisableClientState(GL_VERTEX_ARRAY)
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+            glDisableClientState(GL_COLOR_ARRAY)
+        Window.checkErrors()
+        }
     }
 
     def render() {
