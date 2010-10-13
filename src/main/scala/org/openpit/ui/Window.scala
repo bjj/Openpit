@@ -71,6 +71,8 @@ object Window {
         glEnable(GL_CULL_FACE)
         glEnable(GL_TEXTURE_2D)
         glShadeModel(GL_SMOOTH)
+        glAlphaFunc(GL_GREATER, 0.1f)
+        glEnable(GL_ALPHA_TEST)
         glClearColor(135f/255f, 205f/255f, 222f/255f, 1.0f)
 
         glFogi(GL_FOG_MODE, GL_LINEAR)
