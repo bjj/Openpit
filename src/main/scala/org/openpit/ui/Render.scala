@@ -13,31 +13,27 @@ import org.openpit.world.blocks._
 
 object Render {
 
+    final val SIZEOF_FLOAT = 4
+
     var vb = new FloatBufferBuffer()
-    var eb = new IntBufferBuffer()
+    var eb = new ShortBufferBuffer()
     var vbos = Array.fill(10, 3)(0) // gross hack to associate VBOs with displaylists
 
-    def cube(loc: Vec3i, b: Block, top: Vec2f, side: Vec2f, bot: Vec2f) {
+    def cube(loc: Vec3i, b: Block, top: Vec2i, side: Vec2i, bot: Vec2i) {
 
-/*
-        def light(dir: ConstVec3i, dim: Int = 1): Vec3f = {
+        def light(dir: ConstVec3i, dim: Int = 1): Vec3i = {
             if (dim == 6)
-                Vec3f(1.0f, 1.0f, 1.0f)
+                ConstVec3i(32767, 32767, 32767)
             else {
                 World.get(loc + dir + ConstVec3i(0,0,1)*dim).getOrElse(Air) match {
-<<<<<<< HEAD:src/main/scala/org/openpit/ui/Render.scala
                         case Air | Glass | Water => light(dir, dim + 1)
-                        case _ => val bright = dim.toFloat * 0.15f; glColor3f(bright, bright, bright)
-=======
-                        case Air => light(dir, dim + 1)
-                        case Glass() => light(dir, dim + 1)
-                        case _ => val bright = dim.toFloat * 0.15f; Vec3f(bright, bright, bright)
->>>>>>> Gigantic ugly VBO hack.:src/main/scala/org/openpit/ui/Render.scala
+                        case _ => val bright = (5000 * dim); Vec3i(bright, bright, bright)
                 }
             }
         }
+/*
+def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
 */
-def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3f(1.0f,1.0f,1.0f)
 
         def occluded(dir: ConstVec3i) = {
             World.get(loc + dir).getOrElse(Air) match {
@@ -57,76 +53,76 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3f(1.0f,1.0f,1.0f)
 
         var u = top.x
         var v = top.y
-        var U = u + 1f/16f
-        var V = v + 1f/16f
+        var U = u + 1
+        var V = v + 1
 
         if (!occluded(ConstVec3i(0,0,1))) {
             val l = light(ConstVec3i(0,0,0))
-            vb += Vec2f(u, V); vb += l; vb += Vec3f(x,Y,Z)
-            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,y,Z)
-            vb += Vec2f(U, v); vb += l; vb += Vec3f(X,y,Z)
-            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,Y,Z)
+            eb += Vec2i(u, V); eb += l; vb += Vec3f(x,Y,Z)
+            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
+            eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
+            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,Y,Z)
         }
 
         u = side.x
         v = side.y
-        U = u + 1f/16f
-        V = v + 1f/16f
+        U = u + 1
+        V = v + 1
 
         if (!occluded(ConstVec3i(0,-1,0))) {
             val l = light(ConstVec3i(0,-1, 0))
-            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,y,Z)
-            vb += Vec2f(u, V); vb += l; vb += Vec3f(x,y,z)
-            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,y,z)
-            vb += Vec2f(U, v); vb += l; vb += Vec3f(X,y,Z)
+            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
+            eb += Vec2i(u, V); eb += l; vb += Vec3f(x,y,z)
+            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
+            eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
         }
 
         if (!occluded(ConstVec3i(1,0,0))) {
             val l = light(ConstVec3i(1,0, 0))
-            vb += Vec2f(U, v); vb += l; vb += Vec3f(X,y,Z)
-            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,y,z)
-            vb += Vec2f(u, V); vb += l; vb += Vec3f(X,Y,z)
-            vb += Vec2f(u, v); vb += l; vb += Vec3f(X,Y,Z)
+            eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
+            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
+            eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
+            eb += Vec2i(u, v); eb += l; vb += Vec3f(X,Y,Z)
         }
 
         if (!occluded(ConstVec3i(0,1,0))) {
             val l = light(ConstVec3i(0,1, 0))
-            vb += Vec2f(u, v); vb += l; vb += Vec3f(X,Y,Z)
-            vb += Vec2f(u, V); vb += l; vb += Vec3f(X,Y,z)
-            vb += Vec2f(U, V); vb += l; vb += Vec3f(x,Y,z)
-            vb += Vec2f(U, v); vb += l; vb += Vec3f(x,Y,Z)
+            eb += Vec2i(u, v); eb += l; vb += Vec3f(X,Y,Z)
+            eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
+            eb += Vec2i(U, V); eb += l; vb += Vec3f(x,Y,z)
+            eb += Vec2i(U, v); eb += l; vb += Vec3f(x,Y,Z)
         }
 
         if (!occluded(ConstVec3i(-1,0,0))) {
             val l = light(ConstVec3i(-1,0, 0))
-            vb += Vec2f(U, v); vb += l; vb += Vec3f(x,Y,Z)
-            vb += Vec2f(U, V); vb += l; vb += Vec3f(x,Y,z)
-            vb += Vec2f(u, V); vb += l; vb += Vec3f(x,y,z)
-            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,y,Z)
+            eb += Vec2i(U, v); eb += l; vb += Vec3f(x,Y,Z)
+            eb += Vec2i(U, V); eb += l; vb += Vec3f(x,Y,z)
+            eb += Vec2i(u, V); eb += l; vb += Vec3f(x,y,z)
+            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
         }
 
         if (!occluded(ConstVec3i(0,0,-1))) {
             val l = light(ConstVec3i(0,0, 0))
             u = bot.x
             v = bot.y
-            U = u + 1f/16f
-            V = v + 1f/16f
+            U = u + 1
+            V = v + 1
 
-            vb += Vec2f(U, V); vb += l; vb += Vec3f(X,y,z)
-            vb += Vec2f(U, v); vb += l; vb += Vec3f(x,y,z)
-            vb += Vec2f(u, v); vb += l; vb += Vec3f(x,Y,z)
-            vb += Vec2f(u, V); vb += l; vb += Vec3f(X,Y,z)
+            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
+            eb += Vec2i(U, v); eb += l; vb += Vec3f(x,y,z)
+            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,Y,z)
+            eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
         }
     }
 
-    val grassTop = Vec2f(0f, 0f)
-    val grassBot = Vec2f(1f/16f, 0f)
-    val grassSide = Vec2f(2f/16f, 0f)
-    val stoneAll = Vec2f(0, 1f/16f)
-    val glassAll = Vec2f(0, 2f/16f)
-    val cobblestoneAll = Vec2f(1f/16f, 1f/16f)
-    val waterAll = Vec2f(2f/16f, 2f/16f)
-    val sandAll = Vec2f(3f/16f, 0f/16f)
+    val grassTop = Vec2i(0, 0)
+    val grassBot = Vec2i(1, 0)
+    val grassSide = Vec2i(2, 0)
+    val stoneAll = Vec2i(0, 1)
+    val glassAll = Vec2i(0, 2)
+    val cobblestoneAll = Vec2i(1, 1)
+    val waterAll = Vec2i(2, 2)
+    val sandAll = Vec2i(3, 0)
 
     val whiteAll = Vec2f(10f/16f, 10f/16f)
 
@@ -226,7 +222,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3f(1.0f,1.0f,1.0f)
         eb.clear()
         vb.clear()
         renderWorld(bound)(s)
-        vbos(list)(2) = vb.length / 8
+        vbos(list)(2) = vb.length / 3
 
         if (vbos(list)(0) == 0) {
             vbos(list)(0) = glGenBuffers()
@@ -235,9 +231,15 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3f(1.0f,1.0f,1.0f)
         Window.checkErrors()
         glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
         Window.checkErrors()
-        glBufferData(GL_ARRAY_BUFFER, vb.length * 4, GL_DYNAMIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, vb.bytes, GL_DYNAMIC_DRAW)
         Window.checkErrors()
         glBufferSubData(GL_ARRAY_BUFFER, 0, vb.result)
+        Window.checkErrors()
+        glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(1))
+        Window.checkErrors()
+        glBufferData(GL_ARRAY_BUFFER, eb.bytes, GL_DYNAMIC_DRAW)
+        Window.checkErrors()
+        glBufferSubData(GL_ARRAY_BUFFER, 0, eb.result)
         Window.checkErrors()
         //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbos(list)(1))
         Window.checkErrors()
@@ -262,18 +264,24 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3f(1.0f,1.0f,1.0f)
             glEnableClientState(GL_VERTEX_ARRAY)
         Window.checkErrors()
         Window.checkErrors()
-            glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
+            glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(1))
         Window.checkErrors()
-            glTexCoordPointer(2, GL_FLOAT, 8*4, 0*4)
-            glColorPointer(3, GL_FLOAT, 8*4, 2*4)
-            glVertexPointer(3, GL_FLOAT, 8*4, 5*4)
+            glTexCoordPointer(2, GL_SHORT, 5*eb.sizeof, 0)
+            glColorPointer(3, GL_SHORT, 5*eb.sizeof, 2*eb.sizeof)
+            glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
+            glVertexPointer(3, GL_FLOAT, 0*vb.sizeof, 0*vb.sizeof)
         Window.checkErrors()
             Texture.Terrain.bind(true)
+            glMatrixMode(GL_TEXTURE)
+        Window.checkErrors()
+            glPushMatrix()
+            glScalef(1f/16f, 1f/16f, 1f)
         Window.checkErrors()
             glDrawArrays(GL_QUADS, 0, vbos(list)(2))
         Window.checkErrors()
             glBindBuffer(GL_ARRAY_BUFFER, 0)
         Window.checkErrors()
+            glPopMatrix()
             glDisableClientState(GL_VERTEX_ARRAY)
             glDisableClientState(GL_TEXTURE_COORD_ARRAY)
             glDisableClientState(GL_COLOR_ARRAY)
