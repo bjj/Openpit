@@ -58,7 +58,8 @@ object Window {
     }
 
     def init() {
-        resize(800, 450)
+        //resize(800, 450)
+        resize(1680, 1050)
         Display.setDisplayMode(new DisplayMode(width, height))
         Display.setTitle("Openpit")
         //Display.setVSyncEnabled(true)
