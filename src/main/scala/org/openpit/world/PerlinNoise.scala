@@ -79,6 +79,7 @@ final class PerlinNoise3D {
   val SIZE = 256
   val perlin = new Array[Int](SIZE * 2 + 2);
   val gradient = new Array[Vec2f](SIZE);
+  val rotate = ConstQuat4f(quaternion(radians(30.0f), Vec3f.UnitX) * quaternion(radians(30.0f), Vec3f.UnitY) * quaternion(radians(30.0f), Vec3f.UnitZ))
 
   def lerp(w : Float, a : Float, b : Float) = {
      a + w * (b - a)
@@ -111,7 +112,7 @@ final class PerlinNoise3D {
      }
   }
 
-  def apply(x : Float, y : Float, z : Float) = {
+  def noise(x : Float, y : Float, z : Float) = {
      val point = Vec3i(floor(x).toInt & 0xff, floor(y).toInt & 0xff, floor(z).toInt & 0xff)
 
      val rp = Vec3f(x - floor(x), y - floor(y), z - floor(z))
@@ -141,5 +142,19 @@ final class PerlinNoise3D {
             grad(perlin(BB + 1), rp.x - 1, rp.y - 1, rp.z - 1))))
   }
 
+  def apply(x : Float, y : Float, z : Float) = {
+     var total = 0.0f
+     val p = 0.50f
+     val zx = x * 6000.0f
+     val zy = y * 6000.0f
+     val zz = z * 6000.0f
+     val zot = rotate.rotateVector(ConstVec3f(zx, zy, zz))
+     for(i <- 0 to 9) {
+          val freq = pow(2, i)
+          val amp = pow(p, i)
+          total += noise(zot.x * freq, zot.y *freq, zot.z*freq/15.0f) * amp
+     }
+     total
+  }
 
 }

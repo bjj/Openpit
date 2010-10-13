@@ -114,18 +114,86 @@ object Render {
     val waterAll = Vec2f(2f/16f, 2f/16f)
     val sandAll = Vec2f(3f/16f, 0f/16f)
 
+    val whiteAll = Vec2f(10f/16f, 10f/16f)
+
     def grass(loc: Vec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
     def stone(loc: Vec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
     def glass(loc: Vec3i, b: Block) { cube(loc, b, glassAll, glassAll, glassAll) }
     def cobblestone(loc: Vec3i, b: Block) { cube(loc, b, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
     def water(loc: Vec3i, b: Block) { cube(loc, b, waterAll, waterAll, waterAll) }
     def sand(loc: Vec3i, b: Block) { cube(loc, b, sandAll, sandAll, sandAll) }
+    def noise(loc: Vec3i, c: ConstVec3f) {
+      var u = whiteAll.x
+      var v = whiteAll.y
+      var U = u + 1f/16f
+      var V = v + 1f/16f
+
+      val x = loc.x
+      val y = loc.y
+      val z = loc.z
+      val X = x + 1
+      val Y = y + 1
+      val Z = z + 1
+
+//      glEnd()
+//      glBegin(GL_POINTS)
+//
+//      glColor3f(c.x, c.y, c.z)
+//      glVertex3i(x, y, z)
+//
+//      glEnd()
+//      glBegin(GL_QUADS)
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(u, V); glVertex3i(x,Y,Z)
+      glTexCoord2f(u, v); glVertex3i(x,y,Z)
+      glTexCoord2f(U, v); glVertex3i(X,y,Z)
+      glTexCoord2f(U, V); glVertex3i(X,Y,Z)
+
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(U, v); glVertex3i(x,Y,Z)
+      glTexCoord2f(U, V); glVertex3i(x,Y,z)
+      glTexCoord2f(u, V); glVertex3i(x,y,z)
+      glTexCoord2f(u, v); glVertex3i(x,y,Z)
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(u, v); glVertex3i(x,y,Z)
+      glTexCoord2f(u, V); glVertex3i(x,y,z)
+      glTexCoord2f(U, V); glVertex3i(X,y,z)
+      glTexCoord2f(U, v); glVertex3i(X,y,Z)
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(U, v); glVertex3i(X,y,Z)
+      glTexCoord2f(U, V); glVertex3i(X,y,z)
+      glTexCoord2f(u, V); glVertex3i(X,Y,z)
+      glTexCoord2f(u, v); glVertex3i(X,Y,Z)
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(u, v); glVertex3i(X,Y,Z)
+      glTexCoord2f(u, V); glVertex3i(X,Y,z)
+      glTexCoord2f(U, V); glVertex3i(x,Y,z)
+      glTexCoord2f(U, v); glVertex3i(x,Y,Z)
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(U, v); glVertex3i(x,Y,Z)
+      glTexCoord2f(U, V); glVertex3i(x,Y,z)
+      glTexCoord2f(u, V); glVertex3i(x,y,z)
+      glTexCoord2f(u, v); glVertex3i(x,y,Z)
+
+      glColor3f(c.x, c.y, c.z)
+      glTexCoord2f(U, V); glVertex3i(X,y,z)
+      glTexCoord2f(U, v); glVertex3i(x,y,z)
+      glTexCoord2f(u, v); glVertex3i(x,Y,z)
+      glTexCoord2f(u, V); glVertex3i(X,Y,z)
+    }
 
     def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
         case Grass() => grass(l, b)
         case Stone() => stone(l, b)
         case Cobblestone() => cobblestone(l, b)
         case Sand() => sand(l, b)
+        case n : Noise => noise(l, n.color)
         case _ => Unit
     }
 
