@@ -40,8 +40,10 @@ object Window {
     }
 
     def checkErrors() {
-        for (err <- glErrors) {
-            error("GL ERROR: %s\n" +  GLU.gluErrorString(err))
+        glGetError() match {
+            case 0 => Unit
+            case err: Int =>
+                error("GL ERROR: %s\n" +  GLU.gluErrorString(err))
         }
     }
 
