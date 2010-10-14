@@ -26,14 +26,15 @@ object Layer {
     def init() {
         import hud.Crosshair
         all = Crosshair :: SelectLayer :: all;
-        for (x <- -256 to 256 by 16; y <- -256 to 256 by 16) {
+        val div = 32
+        for (x <- -256 to 256 by div; y <- -256 to 256 by div) {
             // XXX these layers actually overlap :(
             // this is good when intersecting with events for redraw
             // but bad for update...
             all = new TerrainLayer(new AABB(Vec3f(x,y,-100),
-                                            Vec3f(x+16, y+16, 100))) ::
+                                            Vec3f(x+div, y+div, 100))) ::
                   new GlassLayer  (new AABB(Vec3f(x,y,-100),
-                                            Vec3f(x+16, y+16, 100))) ::
+                                            Vec3f(x+div, y+div, 100))) ::
                   all;
         }
         update();
