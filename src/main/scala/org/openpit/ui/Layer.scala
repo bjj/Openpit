@@ -83,16 +83,6 @@ abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
     }
 }
 
-/*
-abstract class Layer3dVBO(zz: Int, val blend: Boolean) extends Layer3d(zz, blend) {
-    def dopaint() {
-        import org.lwjgl.opengl.ARBBufferObject._
-
-        glBindBufferARB
-    }
-}
-*/
-
 abstract class Layer2d(zz: Int) extends Layer(zz) {
     def paint() {
         import org.openpit.ui.Projection

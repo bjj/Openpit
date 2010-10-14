@@ -8,6 +8,9 @@ class TerrainLayer(val bound: AABB) extends Layer3d(100, false) {
         if (bound intersects region)
             Render.updateDisplayList(displayList, bound)(Render.renderOpaqueBlock)
     }
+    override def dopaint() {
+        Render.gogo(displayList)
+    }
 }
 
 class GlassLayer(val bound: AABB) extends Layer3d(900, true) {

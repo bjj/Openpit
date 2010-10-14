@@ -17,7 +17,7 @@ object Render {
 
     var vb = new FloatBufferBuffer()
     var eb = new ShortBufferBuffer()
-    var vbos = Array.fill(10, 3)(0) // gross hack to associate VBOs with displaylists
+    var vbos = Array.fill(2200, 3)(0) // gross hack to associate VBOs with displaylists
 
     def cube(loc: Vec3i, b: Block, top: Vec2i, side: Vec2i, bot: Vec2i) {
 
