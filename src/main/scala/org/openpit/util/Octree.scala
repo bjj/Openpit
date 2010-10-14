@@ -21,23 +21,23 @@ import simplex3d.math.intm.IntMath._
  *                      (-1,-1, 0), (0,-1, 0), (-1,0, 0), (0, 0, 0)
  */
 
-abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends Traversable[T] {
+abstract class IOctree[T:Manifest] (var center: inVec3i, var radius: Int) extends Traversable[T] {
 
-    final def contains(p: Vec3i) = {
+    final def contains(p: inVec3i) = {
         val d = p - center
         (d.x < radius && d.x >= -radius &&
          d.y < radius && d.y >= -radius &&
          d.z < radius && d.z >= -radius)
     }
 
-    final implicit def toAABB = new AABB(center - ConstVec3i(1,1,1) * radius,
-                                         center + ConstVec3i(1,1,1) * radius)
+    final implicit def toAABB = new AABB(center - Vec3i.One * radius,
+                                         center + Vec3i.One * radius)
 
     final def contains(aabb: AABB): Boolean = toAABB contains aabb
     final def intersects(aabb: AABB): Boolean = toAABB intersects aabb
     final def inside(aabb: AABB) = aabb contains toAABB
 
-    protected final def indexOf(p: Vec3i) = {
+    protected final def indexOf(p: inVec3i) = {
         val d = p - center
         (if (d.x < 0) 0 else 1) +
         (if (d.y < 0) 0 else 2) +
@@ -49,30 +49,30 @@ abstract class IOctree[T:Manifest] (var center: Vec3i, var radius: Int) extends 
               if ((index & 2) == 0) center.y - dist else center.y + dist,
               if ((index & 4) == 0) center.z - dist else center.z + dist)
     }
-    protected final def lerp(p: Vec3i, dist: Int): Vec3i =
+    protected final def lerp(p: inVec3i, dist: Int): Vec3i =
         lerp(indexOf(p), dist)
 
-    def apply(p: Vec3i): T
+    def apply(p: inVec3i): T
     def apply(x: Int, y: Int, z: Int): T = apply(ConstVec3i(x,y,z))
-    def get(p: Vec3i): Option[T]
-    def update(p: Vec3i, value: T): Unit
+    def get(p: inVec3i): Option[T]
+    def update(p: inVec3i, value: T): Unit
     def update(x: Int, y: Int, z: Int, value: T) {
         update(ConstVec3i(x,y,z), value)
     }
-    def foreach[U](f: (Vec3i, T) => U)
-    def foreach[U](bound: AABB)(f: (Vec3i, T) => U)
+    def foreach[U](f: (inVec3i, T) => U)
+    def foreach[U](bound: AABB)(f: (inVec3i, T) => U)
     def foreach[U](f: (T) => U)
 }
 
-case class OctreeNode[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
+case class OctreeNode[T:Manifest] (c: inVec3i, r: Int) extends IOctree[T](c, r) {
 
     val children = new Array[IOctree[T]](8)
 
-    def get(p: Vec3i): Option[T] = children(indexOf(p)) match {
+    def get(p: inVec3i): Option[T] = children(indexOf(p)) match {
         case null => None
         case c    => c.get(p)
     }
-    def apply(p: Vec3i): T = children(indexOf(p))(p)
+    def apply(p: inVec3i): T = children(indexOf(p))(p)
 
     // Create a new child (call only if needed)
     protected def grow(index: Int) = {
@@ -83,11 +83,11 @@ case class OctreeNode[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
         child
     }
 
-    private[util] def setsubtree(p: Vec3i, subtree: OctreeNode[T]) {
+    private[util] def setsubtree(p: inVec3i, subtree: OctreeNode[T]) {
         children(indexOf(p)) = subtree
     }
 
-    def update(p: Vec3i, value: T) {
+    def update(p: inVec3i, value: T) {
         val i = indexOf(p)
         children(i) match {
             case null => grow(i).update(p, value)
@@ -95,9 +95,9 @@ case class OctreeNode[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
         }
     }
 
-    def foreach[U](f: (Vec3i, T) => U) =
+    def foreach[U](f: (inVec3i, T) => U) =
         for (c <- children if c != null) c.foreach(f)
-    def foreach[U](bound: AABB)(f: (Vec3i, T) => U) = {
+    def foreach[U](bound: AABB)(f: (inVec3i, T) => U) = {
         if (inside(bound))
             foreach(f)  // no bounds checking needed within
         else if (intersects(bound))
@@ -107,7 +107,7 @@ case class OctreeNode[T:Manifest] (c: Vec3i, r: Int) extends IOctree[T](c, r) {
         for (c <- children if c != null) c.foreach(f)
 }
 
-case class Octree[T:Manifest] (c: Vec3i = ConstVec3i(0,0,0)) extends IOctree[T](c, 2) {
+case class Octree[T:Manifest] (c: inVec3i = ConstVec3i(0,0,0)) extends IOctree[T](c, 2) {
     var tree = OctreeNode[T](c, 2)
 
     /**
@@ -121,7 +121,7 @@ case class Octree[T:Manifest] (c: Vec3i = ConstVec3i(0,0,0)) extends IOctree[T](
     /**
      * Expand Octree one level, shifting the center toward p
      */
-    protected def expand(p: Vec3i) {
+    protected def expand(p: inVec3i) {
         var repl = OctreeNode[T](lerp(p, radius), radius * 2)
         repl.setsubtree(center, tree)
         tree = repl
@@ -129,34 +129,34 @@ case class Octree[T:Manifest] (c: Vec3i = ConstVec3i(0,0,0)) extends IOctree[T](
         radius = tree.radius
     }
 
-    def apply(p: Vec3i) = tree.apply(p)
-    def get(p: Vec3i) = tree.get(p)
-    def update(p: Vec3i, value: T) {
+    def apply(p: inVec3i) = tree.apply(p)
+    def get(p: inVec3i) = tree.get(p)
+    def update(p: inVec3i, value: T) {
         while (!contains(p)) expand(p)
         tree(p) = value
     }
 
-    def foreach[U](f: (Vec3i, T) => U) = tree.foreach(f)
-    def foreach[U](bound: AABB)(f: (Vec3i, T) => U) = tree.foreach(bound)(f)
+    def foreach[U](f: (inVec3i, T) => U) = tree.foreach(f)
+    def foreach[U](bound: AABB)(f: (inVec3i, T) => U) = tree.foreach(bound)(f)
     def foreach[U](f: (T) => U) = tree.foreach(f)
 }
 
-case class OctreeLeaf[T:Manifest] (c: Vec3i) extends IOctree[T](c, 1) {
+case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
 
     var children = new Array[T](8)
 
-    def get(p: Vec3i): Option[T] = children(indexOf(p)) match {
+    def get(p: inVec3i): Option[T] = children(indexOf(p)) match {
         case null => None
         case c    => Some(c)
     }
-    def apply(p: Vec3i): T = children(indexOf(p))
-    def update(p: Vec3i, value: T) { children(indexOf(p)) = value }
+    def apply(p: inVec3i): T = children(indexOf(p))
+    def update(p: inVec3i, value: T) { children(indexOf(p)) = value }
 
-    def foreach[U](f: (Vec3i, T) => U) =
+    def foreach[U](f: (inVec3i, T) => U) =
         for (ci <- 0 until 8 if children(ci) != null) {
             f(center + LeafOffsets(ci), children(ci))
         }
-    def foreach[U](bound: AABB)(f: (Vec3i, T) => U) = {
+    def foreach[U](bound: AABB)(f: (inVec3i, T) => U) = {
         if (inside(bound))
             foreach(f)  // no bounds checking needed within
         else if (intersects(bound))
