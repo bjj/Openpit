@@ -20,11 +20,6 @@ object Window {
     var height = 1
     var aspect = 1.0f
 
-    // XXX I wanted an insertion-sorting collection based on Z depth
-    // but I didn't find it offhand
-    import org.openpit.ui.hud.Crosshair
-    val layers = Array(TerrainLayer, SelectLayer, GlassLayer, Crosshair)
-
     def paint() {
         import console.FPS
 
@@ -32,9 +27,8 @@ object Window {
             // Uncomment this sync to ignore the repaint speed
             //Display.sync(framerate)
             glClear(GL_COLOR_BUFFER_BIT |
-                    GL_STENCIL_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT)
-            for (layer <- layers if layer.visible) layer.paint()
+            for (layer <- Layer.all if layer.visible) layer.paint()
             Display.update()
             // Uncomment this update to measure the redraw speed
             //update()
@@ -81,15 +75,8 @@ object Window {
         glFogf(GL_FOG_START, 50f)
         glFogf(GL_FOG_END, Projection.maxRenderDistance)
         glEnable(GL_FOG)
-
-        for (layer <- layers) layer.start()
     }
 
-    // XXX update should be in "Layers" or something along with layers collection
-    def update(region: AABB = AABB.Everywhere) {
-        import org.openpit.ui.Layer
-        // XXX NullPointerException in glGenLists -- not thread safe??
-        //for (layer <- layers) layer ! Layer.Update
-        for (layer <- layers) layer.update(region)
+    def update() {
     }
 }

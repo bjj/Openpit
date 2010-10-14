@@ -36,7 +36,7 @@ object Main {
         MultipassGenerator.init()
         //NoiseGenerator.generate()
         World.generate()
-        Window.update() // XXX should be Layers.update() or something
+        Layer.init()
         Input.init()
         FPS.start()
     }
@@ -74,7 +74,7 @@ object Main {
                  //World.generate()
                  //NoiseGenerator.generate(m.invert)
                  MultipassGenerator.generate(m.invert)
-                 Window.update()
+                 Layer.update()
                }
             }
            case m: Move =>
@@ -121,7 +121,7 @@ object Main {
                         case loc =>
                             if (!Camera.collisionBox.intersects(AABB.fromBlock(loc))) {
                                 World(loc) = Cobblestone()
-                                Window.update(AABB.fromBlock(loc))
+                                Layer.update(AABB.fromBlock(loc))
                                 // XXX use position interface
                                 SoundEffect.KungFuPunch.playAsSoundEffect(1f, 1f, false)
                             }
@@ -133,7 +133,7 @@ object Main {
                                 SoundEffect.Digging.playAsSoundEffect(1f, 1f, false)
                             }
                             World(loc) = Air
-                            Window.update(AABB.fromBlock(loc))
+                            Layer.update(AABB.fromBlock(loc))
                     }
                 }
         }
