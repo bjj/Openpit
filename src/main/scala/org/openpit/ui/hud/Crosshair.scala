@@ -4,13 +4,14 @@ import org.lwjgl.opengl.GL11._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
-import org.openpit.util.ImplicitGL._
+import org.openpit.util._
+import ImplicitGL._
 import org.openpit.ui.{Texture, Window, Layer2d}
 
 object Crosshair extends Layer2d(1000) {
     val radius = 16f   // XXX ortho setup to draw in screen pix -- should crosshair scale?
 
-    def update() {
+    def update(region: AABB) {
         glNewList(displayList, GL_COMPILE)
         Texture.Crosshair.bind()
         glColor4f(1,1,1,1)

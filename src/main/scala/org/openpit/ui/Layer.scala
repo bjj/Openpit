@@ -3,12 +3,14 @@ package org.openpit.ui
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.util.glu._
 
+import org.openpit.util.AABB
+
 import scala.actors.Actor
 import java.lang.System.currentTimeMillis
 
 object Layer {
     abstract class Message
-    case object Update extends Message
+    case class Update(region: AABB) extends Message
     case object Shutdown extends Message
 }
 
@@ -18,7 +20,7 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
 
     def compare(that: Layer) = this.z - that.z
 
-    def update()
+    def update(region: AABB)
     def paint()
     def dopaint() = glCallList(displayList)
 
@@ -31,7 +33,7 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
 
         while (running) {
             receive {
-                case Layer.Update => update()
+                case Layer.Update(region) => update(region)
                 case Layer.Shutdown => running = false
             }
         }

@@ -8,8 +8,8 @@ import org.lwjgl.util.glu._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
-import org.openpit.util.ImplicitGL._
-import org.openpit.util.glErrors
+import org.openpit.util._
+import ImplicitGL._
 
 
 object Window {
@@ -86,10 +86,10 @@ object Window {
     }
 
     // XXX update should be in "Layers" or something along with layers collection
-    def update() {
+    def update(region: AABB = AABB.Everywhere) {
         import org.openpit.ui.Layer
         // XXX NullPointerException in glGenLists -- not thread safe??
         //for (layer <- layers) layer ! Layer.Update
-        for (layer <- layers) layer.update()
+        for (layer <- layers) layer.update(region)
     }
 }

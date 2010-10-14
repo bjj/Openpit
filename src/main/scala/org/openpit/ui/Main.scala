@@ -121,6 +121,7 @@ object Main {
                         case loc =>
                             if (!Camera.collisionBox.intersects(AABB.fromBlock(loc))) {
                                 World(loc) = Cobblestone()
+                                Window.update(AABB.fromBlock(loc))
                                 // XXX use position interface
                                 SoundEffect.KungFuPunch.playAsSoundEffect(1f, 1f, false)
                             }
@@ -132,9 +133,8 @@ object Main {
                                 SoundEffect.Digging.playAsSoundEffect(1f, 1f, false)
                             }
                             World(loc) = Air
+                            Window.update(AABB.fromBlock(loc))
                     }
-                    if (m.use || m.tool)
-                        Window.update()
                 }
         }
     }
