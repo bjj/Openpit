@@ -1,11 +1,19 @@
 package org.openpit.ui
 
-import org.openpit.ui._
 import org.lwjgl.opengl.GL11._
+import org.openpit.util._
 
-object TerrainLayer extends Layer3d(100, false) {
-    def update() {
-        Render.updateDisplayList(displayList, Render.renderOpaqueBlock)
+class TerrainLayer(val bound: AABB) extends Layer3d(100, false) {
+    def update(region: AABB) {
+        if (bound intersects region)
+            Render.updateDisplayList(displayList, bound)(Render.renderOpaqueBlock)
+    }
+}
+
+class GlassLayer(val bound: AABB) extends Layer3d(900, true) {
+    def update(region: AABB) {
+        if (bound intersects region)
+            Render.updateDisplayList(displayList, bound)(Render.renderTranslucentBlock)
     }
 }
 
@@ -32,7 +40,7 @@ object SelectLayer extends Layer3d(500, true) {
         }
     }
 
-    def update() {
+    def update(region: AABB) {
         glNewList(displayList, GL_COMPILE)
         Texture.unbind()
         glColor4f(0.3f,0.3f,0.3f,1);
@@ -47,11 +55,5 @@ object SelectLayer extends Layer3d(500, true) {
         }
         glEnd()
         glEndList()
-    }
-}
-
-object GlassLayer extends Layer3d(900, true) {
-    def update() {
-        Render.updateDisplayList(displayList, Render.renderTranslucentBlock)
     }
 }

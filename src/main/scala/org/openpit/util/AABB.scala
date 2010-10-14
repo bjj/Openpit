@@ -211,4 +211,12 @@ object AABB {
      * Create an AABB for a given block location
      */
     def fromBlock(p: Vec3i) = new AABB(p, p + ConstVec3i(1,1,1))
+
+    /**
+     * An AABB that overlaps with and intersects everything.  Possibly
+     * should be explicit rather than just Very Big.
+     */
+    import Float.{MinValue, MaxValue}
+    lazy val Everywhere = new AABB(Vec3f(MinValue, MinValue, MinValue),
+                                   Vec3f(MaxValue, MaxValue, MaxValue))
 }

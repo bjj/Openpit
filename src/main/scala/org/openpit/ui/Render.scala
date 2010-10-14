@@ -5,7 +5,8 @@ import org.lwjgl.util.glu._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
-import org.openpit.util.ImplicitGL._
+import org.openpit.util._
+import ImplicitGL._
 import org.openpit.world._
 import org.openpit.world.blocks._
 
@@ -18,8 +19,7 @@ object Render {
                 glColor3f(1.0f, 1.0f, 1.0f)
             else {
                 World.get(loc + dir + ConstVec3i(0,0,1)*dim).getOrElse(Air) match {
-                        case Air => light(dir, dim + 1)
-                        case Glass() => light(dir, dim + 1)
+                        case Air | Glass() | Water() => light(dir, dim + 1)
                         case _ => val bright = dim.toFloat * 0.15f; glColor3f(bright, bright, bright)
                 }
             }
@@ -203,29 +203,21 @@ object Render {
         case _ => Unit
     }
 
-    def renderWorld(s: (Vec3i, Block)=>Unit) {
+    def renderWorld(bound: AABB)(s: (Vec3i, Block)=>Unit) {
         Texture.Terrain.bind(true)
         glColor4f(1,1,1,1)
         glBegin(GL_QUADS)
-        World.foreach(s)
+        World.foreach(bound)(s)
         glEnd()
     }
 
-    def makeDisplayList(s: (Vec3i, Block) => Unit) = {
-        val index = glGenLists(1)
-        glNewList(index, GL_COMPILE)
-        renderWorld(s)
-        glEndList()
-        index
-    }
-
-    def updateDisplayList(list: Int, s: (Vec3i, Block) => Unit) = {
+    def updateDisplayList(list: Int, bound: AABB)(s: (Vec3i, Block) => Unit) = {
         Texture.Terrain // force load
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
         glNewList(list, GL_COMPILE)
-        renderWorld(s)
+        renderWorld(bound)(s)
         glEndList()
         glPopMatrix()
     }

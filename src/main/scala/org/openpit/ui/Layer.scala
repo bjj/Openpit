@@ -3,13 +3,41 @@ package org.openpit.ui
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.util.glu._
 
+import simplex3d.math.floatm._
+import org.openpit.util.AABB
+
 import scala.actors.Actor
 import java.lang.System.currentTimeMillis
 
 object Layer {
     abstract class Message
-    case object Update extends Message
+    case class Update(region: AABB) extends Message
     case object Shutdown extends Message
+
+    private var _all: List[Layer] = Nil
+    def all = _all
+    def all_= (xs: List[Layer]) { _all = xs.sorted }
+
+    def update(region: AABB = AABB.Everywhere) {
+        //for (layer <- layers) layer ! Layer.Update
+        for (layer <- all) layer.update(region)
+    }
+
+    def init() {
+        import hud.Crosshair
+        all = Crosshair :: SelectLayer :: all;
+        for (x <- -256 to 256 by 16; y <- -256 to 256 by 16) {
+            // XXX these layers actually overlap :(
+            // this is good when intersecting with events for redraw
+            // but bad for update...
+            all = new TerrainLayer(new AABB(Vec3f(x,y,-100),
+                                            Vec3f(x+16, y+16, 100))) ::
+                  new GlassLayer  (new AABB(Vec3f(x,y,-100),
+                                            Vec3f(x+16, y+16, 100))) ::
+                  all;
+        }
+        update();
+    }
 }
 
 abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
@@ -18,7 +46,7 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
 
     def compare(that: Layer) = this.z - that.z
 
-    def update()
+    def update(region: AABB)
     def paint()
     def dopaint() = glCallList(displayList)
 
@@ -31,7 +59,7 @@ abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
 
         while (running) {
             receive {
-                case Layer.Update => update()
+                case Layer.Update(region) => update(region)
                 case Layer.Shutdown => running = false
             }
         }
