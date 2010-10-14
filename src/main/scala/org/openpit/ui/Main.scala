@@ -120,7 +120,7 @@ object Main {
                     if (m.use) SelectLayer.target.foreach {
                         case loc =>
                             if (!Camera.collisionBox.intersects(AABB.fromBlock(loc))) {
-                                World(loc) = Cobblestone()
+                                World(loc) = Cobblestone
                                 Layer.update(AABB.fromBlock(loc))
                                 // XXX use position interface
                                 SoundEffect.KungFuPunch.playAsSoundEffect(1f, 1f, false)

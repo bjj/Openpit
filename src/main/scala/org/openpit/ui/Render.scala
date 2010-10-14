@@ -19,7 +19,7 @@ object Render {
                 glColor3f(1.0f, 1.0f, 1.0f)
             else {
                 World.get(loc + dir + ConstVec3i(0,0,1)*dim).getOrElse(Air) match {
-                        case Air | Glass() | Water() => light(dir, dim + 1)
+                        case Air | Glass | Water => light(dir, dim + 1)
                         case _ => val bright = dim.toFloat * 0.15f; glColor3f(bright, bright, bright)
                 }
             }
@@ -28,8 +28,8 @@ object Render {
         def occluded(dir: ConstVec3i) = {
             World.get(loc + dir).getOrElse(Air) match {
                     case Air => false
-                    case Glass() => b.isInstanceOf[Glass]
-                    case Water() => b.isInstanceOf[Water]
+                    case Glass => b == Glass
+                    case Water => b == Water
                     case _ => true
             }
         }
@@ -189,17 +189,17 @@ object Render {
     }
 
     def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
-        case Grass() => grass(l, b)
-        case Stone() => stone(l, b)
-        case Cobblestone() => cobblestone(l, b)
-        case Sand() => sand(l, b)
-        case n : Noise => noise(l, n.color)
+        case Grass => grass(l, b)
+        case Stone => stone(l, b)
+        case Cobblestone => cobblestone(l, b)
+        case Sand => sand(l, b)
+        case Noise(color) => noise(l, color)
         case _ => Unit
     }
 
     def renderTranslucentBlock(l: Vec3i, b: Block) = b match {
-        case Glass() => glass(l, b)
-        case Water() => water(l, b)
+        case Glass => glass(l, b)
+        case Water => water(l, b)
         case _ => Unit
     }
 

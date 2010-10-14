@@ -38,9 +38,9 @@ object NoiseGenerator {
           val n = noise2(nv.x, nv.y)
           val h = (floor(2f*height * n + 10) - height).toInt
           //CellArray(x, y, -100) = 1
-          World(x, y, -height) = Water()
+          World(x, y, -height) = Water
           for(z <- -height to sealevel) 
-            World(x, y, z) = Water()
+            World(x, y, z) = Water
           for(z <- -height to h) {
             val nr = ConstVec3f(nv.x, nv.y, ((z + height) / 2f*height))
 //            val nz = noise3(nr.x, nr.y, nr.z)
@@ -51,7 +51,7 @@ object NoiseGenerator {
 //            } else {
 //                if(nz < 0.55f) {
                   counter += 1
-                  World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass() else (if (h <= (sealevel+2)) Sand() else Stone())
+                  World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass else (if (h <= (sealevel+2)) Sand else Stone)
 //                }
 //            }
           }
@@ -149,10 +149,10 @@ object MultipassGenerator {
         System.out.println("Generating " + from + " to " + to + " -100 to 100")
         for(x <- from.x to to.x; y <- from.y to to.y; z <- -100 to 100) {
             world(x, y, z) match {
-              case 1 => World(x, y, z) = Water()
-              case 2 => World(x, y, z) = Stone()
-              case 3 => World(x, y, z) = Sand()
-              case 4 => World(x, y, z) = Grass()
+              case 1 => World(x, y, z) = Water
+              case 2 => World(x, y, z) = Stone
+              case 3 => World(x, y, z) = Sand
+              case 4 => World(x, y, z) = Grass
               case _ => Unit
             }
         }

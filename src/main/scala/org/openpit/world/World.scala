@@ -15,20 +15,20 @@ object World extends Octree[Block] {
     def plain() {
         // some random test objects
         for (x <- -20 until 70; y <- -20 until 70)
-            this(x, y, 6) = Water()
+            this(x, y, 6) = Water
         for (z <- 5 to 6; x <- z until 50-z; y <- z until 50-z)
-            this(x, y, z) = Sand()
+            this(x, y, z) = Sand
         for (z <- 7 to 10; x <- z until 50-z; y <- z until 50-z)
-            this(x, y, z) = Grass()
-        this(10,10,11) = Stone()
-        this(12,10,13) = Stone()
-        this(12,10,18) = Stone()
-        for (x <- 20 to 30) this(x, 20, 11) = Cobblestone()
-        for (x <- 22 to 28) this(x, 20, 12) = Cobblestone()
-        for (x <- 20 to 30) this(x, 50, 11) = Stone()
-        for (x <- 22 to 28) this(x, 50, 12) = Stone()
+            this(x, y, z) = Grass
+        this(10,10,11) = Stone
+        this(12,10,13) = Stone
+        this(12,10,18) = Stone
+        for (x <- 20 to 30) this(x, 20, 11) = Cobblestone
+        for (x <- 22 to 28) this(x, 20, 12) = Cobblestone
+        for (x <- 20 to 30) this(x, 50, 11) = Stone
+        for (x <- 22 to 28) this(x, 50, 12) = Stone
         for (y <- 20 until 30; z <- 11 until 15)
-            this(15, y, z) = Glass()
+            this(15, y, z) = Glass
     }
 
     def min(x : Int, y : Int) = {
