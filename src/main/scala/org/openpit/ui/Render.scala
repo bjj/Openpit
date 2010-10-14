@@ -19,7 +19,7 @@ object Render {
     var eb = new ShortBufferBuffer()
     var vbos = Array.fill(2200, 3)(0) // gross hack to associate VBOs with displaylists
 
-    def cube(loc: Vec3i, b: Block, top: Vec2i, side: Vec2i, bot: Vec2i) {
+    def cube(loc: inVec3i, b: Block, top: Vec2i, side: Vec2i, bot: Vec2i) {
 
         def light(dir: ConstVec3i, dim: Int = 1): Vec3i = {
             if (dim == 6)
@@ -115,24 +115,24 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
         }
     }
 
-    val grassTop = Vec2i(0, 0)
-    val grassBot = Vec2i(1, 0)
-    val grassSide = Vec2i(2, 0)
-    val stoneAll = Vec2i(0, 1)
-    val glassAll = Vec2i(0, 2)
-    val cobblestoneAll = Vec2i(1, 1)
-    val waterAll = Vec2i(2, 2)
-    val sandAll = Vec2i(3, 0)
+    val grassTop = ConstVec2i(0, 0)
+    val grassBot = ConstVec2i(1, 0)
+    val grassSide = ConstVec2i(2, 0)
+    val stoneAll = ConstVec2i(0, 1)
+    val glassAll = ConstVec2i(0, 2)
+    val cobblestoneAll = ConstVec2i(1, 1)
+    val waterAll = ConstVec2i(2, 2)
+    val sandAll = ConstVec2i(3, 0)
 
-    val whiteAll = Vec2f(10f/16f, 10f/16f)
+    val whiteAll = ConstVec2f(10f/16f, 10f/16f)
 
-    def grass(loc: Vec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
-    def stone(loc: Vec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
-    def glass(loc: Vec3i, b: Block) { cube(loc, b, glassAll, glassAll, glassAll) }
-    def cobblestone(loc: Vec3i, b: Block) { cube(loc, b, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
-    def water(loc: Vec3i, b: Block) { cube(loc, b, waterAll, waterAll, waterAll) }
-    def sand(loc: Vec3i, b: Block) { cube(loc, b, sandAll, sandAll, sandAll) }
-    def noise(loc: Vec3i, c: ConstVec3f) {
+    def grass(loc: inVec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
+    def stone(loc: inVec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
+    def glass(loc: inVec3i, b: Block) { cube(loc, b, glassAll, glassAll, glassAll) }
+    def cobblestone(loc: inVec3i, b: Block) { cube(loc, b, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
+    def water(loc: inVec3i, b: Block) { cube(loc, b, waterAll, waterAll, waterAll) }
+    def sand(loc: inVec3i, b: Block) { cube(loc, b, sandAll, sandAll, sandAll) }
+    def noise(loc: inVec3i, c: ConstVec3f) {
       var u = whiteAll.x
       var v = whiteAll.y
       var U = u + 1f/16f
@@ -198,7 +198,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
       glTexCoord2f(u, V); glVertex3i(X,Y,z)
     }
 
-    def renderOpaqueBlock(l: Vec3i, b: Block) = b match {
+    def renderOpaqueBlock(l: inVec3i, b: Block) = b match {
         case Grass => grass(l, b)
         case Stone => stone(l, b)
         case Cobblestone => cobblestone(l, b)
@@ -207,17 +207,18 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
         case _ => Unit
     }
 
-    def renderTranslucentBlock(l: Vec3i, b: Block) = b match {
+    def renderTranslucentBlock(l: inVec3i, b: Block) = b match {
         case Glass => glass(l, b)
         case Water => water(l, b)
         case _ => Unit
     }
 
-    def renderWorld(bound: AABB)(s: (Vec3i, Block)=>Unit) {
+    def renderWorld(bound: AABB)(s: (inVec3i, Block)=>Unit) {
         World.foreach(bound)(s)
+        //Main.debugTime("loop", World.foreach(bound){case _=>Unit} )
     }
 
-    def updateDisplayList(list: Int, bound: AABB)(s: (Vec3i, Block) => Unit) = {
+    def updateDisplayList(list: Int, bound: AABB)(s: (inVec3i, Block) => Unit) = {
         Texture.Terrain // force load
         eb.clear()
         vb.clear()
