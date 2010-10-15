@@ -146,16 +146,19 @@ object MultipassGenerator {
        }
 
        // TODO: fix the water
-        System.out.println("Generating " + from + " to " + to + " -100 to 100")
+        println("Generating " + from + " to " + to + " -100 to 100")
+        var loc = Vec3i(0,0,0)
         for(x <- from.x to to.x; y <- from.y to to.y; z <- -100 to 100) {
+            loc.x = x; loc.y = y; loc.z = z
             world(x, y, z) match {
-              case 1 => World(x, y, z) = Water
-              case 2 => World(x, y, z) = Stone
-              case 3 => World(x, y, z) = Sand
-              case 4 => World(x, y, z) = Grass
+              case 1 => World(loc) = Water
+              case 2 => World(loc) = Stone
+              case 3 => World(loc) = Sand
+              case 4 => World(loc) = Grass
               case _ => Unit
             }
         }
+        println("done!")
     }
 
 
