@@ -157,9 +157,10 @@ case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
             f(center + LeafOffsets(ci), children(ci))
         }
     def foreach[U](bound: AABB)(f: (inVec3i, T) => U) = {
-        if (inside(bound))
+        val me = toAABB
+        if (bound contains me)
             foreach(f)  // no bounds checking needed within
-        else if (intersects(bound))
+        else if (bound intersects me)
             for (ci <- 0 until 8 if children(ci) != null) {
                 val loc = center + LeafOffsets(ci)
                 if (bound.intersects(AABB.fromBlock(loc)))
