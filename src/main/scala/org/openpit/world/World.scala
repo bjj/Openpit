@@ -31,10 +31,6 @@ object World extends Octree[Block] {
             this(15, y, z) = Glass
     }
 
-    def min(x : Int, y : Int) = {
-       if (x > y) y else x
-    }
-
     def put(x: Int, y: Int, z: Int, b: Block) = {
         this(Vec3i(x,y,z)) = b
     }
