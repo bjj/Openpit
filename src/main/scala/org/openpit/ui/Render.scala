@@ -25,7 +25,7 @@ object Render {
             if (dim == 6)
                 ConstVec3i(32767, 32767, 32767)
             else {
-                World.get(loc + dir + ConstVec3i(0,0,1)*dim).getOrElse(Air) match {
+                World.get(loc + dir + Dir.Up*dim).getOrElse(Air) match {
                         case Air | Glass | Water => light(dir, dim + 1)
                         case _ => val bright = (5000 * dim); Vec3i(bright, bright, bright)
                 }
@@ -34,6 +34,15 @@ object Render {
 /*
 def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
 */
+
+        object Dir {
+            val Up = ConstVec3i(0,0,1)
+            val Down = ConstVec3i(0,0,-1)
+            val Fore = ConstVec3i(0,1,0)
+            val Back = ConstVec3i(0,-1,0)
+            val Left = ConstVec3i(-1,0,0)
+            val Right = ConstVec3i(1,0,0)
+        }
 
         def occluded(dir: inVec3i) = {
             World.get(loc + dir).getOrElse(Air) match {
@@ -56,7 +65,8 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
         var U = u + 1
         var V = v + 1
 
-        if (!occluded(ConstVec3i(0,0,1))) {
+        import Dir._
+        if (!occluded(Up)) {
             val l = light(ConstVec3i(0,0,0))
             eb += Vec2i(u, V); eb += l; vb += Vec3f(x,Y,Z)
             eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
@@ -69,7 +79,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
         U = u + 1
         V = v + 1
 
-        if (!occluded(ConstVec3i(0,-1,0))) {
+        if (!occluded(Back)) {
             val l = light(ConstVec3i(0,-1, 0))
             eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
             eb += Vec2i(u, V); eb += l; vb += Vec3f(x,y,z)
@@ -77,7 +87,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
         }
 
-        if (!occluded(ConstVec3i(1,0,0))) {
+        if (!occluded(Right)) {
             val l = light(ConstVec3i(1,0, 0))
             eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
             eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
@@ -85,7 +95,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             eb += Vec2i(u, v); eb += l; vb += Vec3f(X,Y,Z)
         }
 
-        if (!occluded(ConstVec3i(0,1,0))) {
+        if (!occluded(Fore)) {
             val l = light(ConstVec3i(0,1, 0))
             eb += Vec2i(u, v); eb += l; vb += Vec3f(X,Y,Z)
             eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
@@ -93,7 +103,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             eb += Vec2i(U, v); eb += l; vb += Vec3f(x,Y,Z)
         }
 
-        if (!occluded(ConstVec3i(-1,0,0))) {
+        if (!occluded(Left)) {
             val l = light(ConstVec3i(-1,0, 0))
             eb += Vec2i(U, v); eb += l; vb += Vec3f(x,Y,Z)
             eb += Vec2i(U, V); eb += l; vb += Vec3f(x,Y,z)
@@ -101,7 +111,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
         }
 
-        if (!occluded(ConstVec3i(0,0,-1))) {
+        if (!occluded(Down)) {
             val l = light(ConstVec3i(0,0, 0))
             u = bot.x
             v = bot.y
