@@ -46,8 +46,10 @@ object Render {
         var U = u + 1f/16f
         var V = v + 1f/16f
 
-        if (!occluded(ConstVec3i(0,0,1))) {
-            light(ConstVec3i(0,0,0))
+        import Direction._
+
+        if (!occluded(`Z+`)) {
+            light(Vec3i.Zero)
             glTexCoord2f(u, V); glVertex3i(x,Y,Z)
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
@@ -59,40 +61,40 @@ object Render {
         U = u + 1f/16f
         V = v + 1f/16f
 
-        if (!occluded(ConstVec3i(0,-1,0))) {
-            light(ConstVec3i(0,-1, 0))
+        if (!occluded(`Y-`)) {
+            light(`Y-`)
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
             glTexCoord2f(u, V); glVertex3i(x,y,z)
             glTexCoord2f(U, V); glVertex3i(X,y,z)
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
         }
 
-        if (!occluded(ConstVec3i(1,0,0))) {
-            light(ConstVec3i(1,0, 0))
+        if (!occluded(`X+`)) {
+            light(`X+`)
             glTexCoord2f(U, v); glVertex3i(X,y,Z)
             glTexCoord2f(U, V); glVertex3i(X,y,z)
             glTexCoord2f(u, V); glVertex3i(X,Y,z)
             glTexCoord2f(u, v); glVertex3i(X,Y,Z)
         }
 
-        if (!occluded(ConstVec3i(0,1,0))) {
-            light(ConstVec3i(0,1, 0))
+        if (!occluded(`Y+`)) {
+            light(`Y+`)
             glTexCoord2f(u, v); glVertex3i(X,Y,Z)
             glTexCoord2f(u, V); glVertex3i(X,Y,z)
             glTexCoord2f(U, V); glVertex3i(x,Y,z)
             glTexCoord2f(U, v); glVertex3i(x,Y,Z)
         }
 
-        if (!occluded(ConstVec3i(-1,0,0))) {
-            light(ConstVec3i(-1,0, 0))
+        if (!occluded(`X-`)) {
+            light(`X-`)
             glTexCoord2f(U, v); glVertex3i(x,Y,Z)
             glTexCoord2f(U, V); glVertex3i(x,Y,z)
             glTexCoord2f(u, V); glVertex3i(x,y,z)
             glTexCoord2f(u, v); glVertex3i(x,y,Z)
         }
 
-        if (!occluded(ConstVec3i(0,0,-1))) {
-            light(ConstVec3i(0,0, 0))
+        if (!occluded(`Z-`)) {
+            light(`Z-`)
             u = bot.x
             v = bot.y
             U = u + 1f/16f
