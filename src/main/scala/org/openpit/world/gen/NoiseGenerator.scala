@@ -89,7 +89,7 @@ object MultipassGenerator {
       var counter = 0
       val sealevel = -height + (height / 8)
       val grassline = height - (height / 20)
-      val world = new Dense3DArray(ConstVec3i(from.x, from.y, -height), ConstVec3i(to.x - from.x + 1, to.y - from.y + 1, 2*height + 1))
+      val world = new Dense3DArray(ConstVec3i(from.x-2, from.y-2, -height-2), ConstVec3i(to.x - from.x + 5, to.y - from.y + 5, 2*height + 5))
       var heightmap = new Dense3DArray(ConstVec3i(from.x, from.y, 0), ConstVec3i(to.x - from.x + 1, to.y - from.y + 1, 1))
       val width = to.x - from.x
       val depth = to.y - from.y
