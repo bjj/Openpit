@@ -140,6 +140,20 @@ case class Octree[T:Manifest] (c: inVec3i = ConstVec3i(0,0,0)) extends IOctree[T
     def foreach[U](f: (T) => U) = tree.foreach(f)
 }
 
+private object OctreeLeafOffsets {
+    final val offsets = Array(
+            ConstVec3i(-1,-1,-1),
+            ConstVec3i( 0,-1,-1),
+            ConstVec3i(-1, 0,-1),
+            ConstVec3i( 0, 0,-1),
+            ConstVec3i(-1,-1, 0),
+            ConstVec3i( 0,-1, 0),
+            ConstVec3i(-1, 0, 0),
+            ConstVec3i( 0, 0, 0))
+
+    final def apply(i:Int) = offsets(i)
+}
+
 case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
 
     var children = new Array[T](8)
@@ -153,16 +167,15 @@ case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
 
     def foreach[U](f: (inVec3i, T) => U) =
         for (ci <- 0 until 8 if children(ci) != null) {
-            f(center + LeafOffsets(ci), children(ci))
+            f(center + OctreeLeafOffsets(ci), children(ci))
         }
     def foreach[U](bound: AABB)(f: (inVec3i, T) => U) = {
         val me = toAABB
         if (bound contains me)
             foreach(f)  // no bounds checking needed within
         else if (bound intersects me) {
-            var loc = Vec3i(0,0,0)
             for (ci <- 0 until 8 if children(ci) != null) {
-                loc := center + LeafOffsets(ci)
+                val loc = center + OctreeLeafOffsets(ci)
                 if (bound.intersectsBlock(loc))
                     f(loc, children(ci))
             }
@@ -173,17 +186,4 @@ case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
             f(children(ci))
         }
 
-    private object LeafOffsets {
-        lazy final val offsets = Array(
-                ConstVec3i(-1,-1,-1),
-                ConstVec3i( 0,-1,-1),
-                ConstVec3i(-1, 0,-1),
-                ConstVec3i( 0, 0,-1),
-                ConstVec3i(-1,-1, 0),
-                ConstVec3i( 0,-1, 0),
-                ConstVec3i(-1, 0, 0),
-                ConstVec3i( 0, 0, 0))
-
-        final def apply(i:Int) = offsets(i)
-    }
 }
