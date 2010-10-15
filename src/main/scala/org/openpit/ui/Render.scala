@@ -19,15 +19,25 @@ object Render {
     var eb = new ShortBufferBuffer()
     var vbos = Array.fill(2200, 3)(0) // gross hack to associate VBOs with displaylists
 
+    object Values {
+        def f(dim: Int) = {
+            val bright = (5000 * dim)
+            Vec3i(bright, bright, bright)
+        }
+        final val values = (0 to 6).map(f).toArray
+        def apply(dim: Int) = values(dim)
+        final val Sun = ConstVec3i(32767, 32767, 32767)
+    }
+
     def cube(loc: inVec3i, b: Block, top: Vec2i, side: Vec2i, bot: Vec2i) {
 
         def light(dir: ConstVec3i, dim: Int = 1): Vec3i = {
             if (dim == 6)
-                ConstVec3i(32767, 32767, 32767)
+                Values.Sun
             else {
                 World.get(loc + dir + Dir.Up*dim).getOrElse(Air) match {
                         case Air | Glass | Water => light(dir, dim + 1)
-                        case _ => val bright = (5000 * dim); Vec3i(bright, bright, bright)
+                        case _ => Values(dim)
                 }
             }
         }
@@ -44,8 +54,10 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             val Right = ConstVec3i(1,0,0)
         }
 
+        var occloc = Vec3i(0,0,0)
         def occluded(dir: inVec3i) = {
-            World.get(loc + dir).getOrElse(Air) match {
+            occloc := loc + dir
+            World.get(occloc).getOrElse(Air) match {
                     case Air => false
                     case Glass => b == Glass
                     case Water => b == Water
