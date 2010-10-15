@@ -55,6 +55,15 @@ class AABB (a: Vec3f, b: Vec3f) {
            (max.z < aabb.min.z) || (min.z > aabb.max.z))
     }
 
+    final def intersection(aabb: AABB) = {
+        val result = new AABB(FloatMath.max(min, aabb.min),
+                              FloatMath.min(max, aabb.max))
+        result
+    }
+
+    final def empty() =
+        min.x >= max.x && min.y >= max.y && min.z >= max.z
+
     final def + (v: Vec3f) = new AABB(min + v, max + v)
 
     final def union(aabb: AABB) =
