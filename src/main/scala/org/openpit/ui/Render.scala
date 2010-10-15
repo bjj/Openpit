@@ -35,7 +35,7 @@ object Render {
 def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
 */
 
-        def occluded(dir: ConstVec3i) = {
+        def occluded(dir: inVec3i) = {
             World.get(loc + dir).getOrElse(Air) match {
                     case Air => false
                     case Glass => b == Glass
@@ -123,8 +123,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
     val cobblestoneAll = ConstVec2i(1, 1)
     val waterAll = ConstVec2i(2, 2)
     val sandAll = ConstVec2i(3, 0)
-
-    val whiteAll = ConstVec2f(10f/16f, 10f/16f)
+    val whiteAll = ConstVec2i(10, 10)
 
     def grass(loc: inVec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
     def stone(loc: inVec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
