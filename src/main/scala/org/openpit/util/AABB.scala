@@ -55,6 +55,12 @@ class AABB (a: Vec3f, b: Vec3f) {
            (max.z < aabb.min.z) || (min.z > aabb.max.z))
     }
 
+    final def intersectsBlock(loc: Vec3i) = {
+        ! ((max.x < loc.x) || (min.x > loc.x+1) ||
+           (max.y < loc.y) || (min.y > loc.y+1) ||
+           (max.z < loc.z) || (min.z > loc.z+1))
+    }
+
     final def intersection(aabb: AABB) = {
         val result = new AABB(FloatMath.max(min, aabb.min),
                               FloatMath.min(max, aabb.max))

@@ -38,10 +38,9 @@ abstract class IOctree[T:Manifest] (var center: inVec3i, var radius: Int) extend
     final def inside(aabb: AABB) = aabb contains toAABB
 
     protected final def indexOf(p: inVec3i) = {
-        val d = p - center
-        (if (d.x < 0) 0 else 1) +
-        (if (d.y < 0) 0 else 2) +
-        (if (d.z < 0) 0 else 4)
+        (if (p.x < center.x) 0 else 1) +
+        (if (p.y < center.y) 0 else 2) +
+        (if (p.z < center.z) 0 else 4)
     }
 
     protected final def lerp(index: Int, dist: Int) = {
@@ -160,12 +159,14 @@ case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
         val me = toAABB
         if (bound contains me)
             foreach(f)  // no bounds checking needed within
-        else if (bound intersects me)
+        else if (bound intersects me) {
+            var loc = Vec3i(0,0,0)
             for (ci <- 0 until 8 if children(ci) != null) {
-                val loc = center + LeafOffsets(ci)
-                if (bound.intersects(AABB.fromBlock(loc)))
+                loc := center + LeafOffsets(ci)
+                if (bound.intersectsBlock(loc))
                     f(loc, children(ci))
             }
+        }
     }
     def foreach[U](f: (T) => U) =
         for (ci <- 0 until 8 if children(ci) != null) {
@@ -173,7 +174,7 @@ case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
         }
 
     private object LeafOffsets {
-        lazy val offsets = Array(
+        lazy final val offsets = Array(
                 ConstVec3i(-1,-1,-1),
                 ConstVec3i( 0,-1,-1),
                 ConstVec3i(-1, 0,-1),
@@ -183,6 +184,6 @@ case class OctreeLeaf[T:Manifest] (c: inVec3i) extends IOctree[T](c, 1) {
                 ConstVec3i(-1, 0, 0),
                 ConstVec3i( 0, 0, 0))
 
-        def apply(i:Int) = offsets(i)
+        final def apply(i:Int) = offsets(i)
     }
 }
