@@ -45,13 +45,13 @@ class FloatBufferBuffer(protected val initialSize: Int)
 
     import simplex3d.math.floatm._
 
-    final def += (elem: Vec2f): this.type = {
+    final def += (elem: inVec2f): this.type = {
         ensureSize(length + 2)
         buf.put(elem.x); buf.put(elem.y);
         this
     }
 
-    final def += (elem: Vec3f): this.type = {
+    final def += (elem: inVec3f): this.type = {
         ensureSize(length + 3)
         buf.put(elem.x); buf.put(elem.y); buf.put(elem.z)
         this
@@ -160,13 +160,13 @@ class IntBufferBuffer(protected val initialSize: Int)
 
     import simplex3d.math.intm._
 
-    final def += (elem: Vec2i): this.type = {
+    final def += (elem: inVec2i): this.type = {
         ensureSize(length + 2)
         buf.put(elem.x); buf.put(elem.y);
         this
     }
 
-    final def += (elem: Vec3i): this.type = {
+    final def += (elem: inVec3i): this.type = {
         ensureSize(length + 3)
         buf.put(elem.x); buf.put(elem.y); buf.put(elem.z)
         this
@@ -275,13 +275,13 @@ class ShortBufferBuffer(protected val initialSize: Int)
 
     import simplex3d.math.intm._
 
-    final def += (elem: Vec2i): this.type = {
+    final def += (elem: inVec2i): this.type = {
         ensureSize(length + 2)
         buf.put(elem.x.toShort).put(elem.y.toShort);
         this
     }
 
-    final def += (elem: Vec3i): this.type = {
+    final def += (elem: inVec3i): this.type = {
         ensureSize(length + 3)
         buf.put(elem.x.toShort).put(elem.y.toShort).put(elem.z.toShort)
         this
