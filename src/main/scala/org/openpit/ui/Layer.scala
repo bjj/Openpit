@@ -19,7 +19,6 @@ object Layer {
     def all_= (xs: List[Layer]) { _all = xs.sorted }
 
     def update(region: AABB = AABB.Everywhere) {
-        //for (layer <- layers) layer ! Layer.Update
         for (layer <- all) layer.update(region)
     }
 

@@ -28,7 +28,7 @@ object Window {
             //Display.sync(framerate)
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT)
-            for (layer <- Layer.all if layer.visible) layer.paint()
+            for (layer <- Layer.all.sorted if layer.visible) layer.paint()
             Display.update()
             // Uncomment this update to measure the redraw speed
             //update()

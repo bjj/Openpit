@@ -3,24 +3,43 @@ package org.openpit.ui
 import org.lwjgl.opengl.GL11._
 import org.openpit.util._
 
-class TerrainLayer(val bound: AABB) extends Layer3d(100, false) {
+abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
+    extends Layer3d(zz, trans) {
+
+    import org.openpit.world.blocks._
+    import simplex3d.math.intm._
+    def renderFunc: (inVec3i, Block) => Unit
+
+    import simplex3d.math.floatm.FloatMath._
+    override def compare(other: Layer) = other match {
+        case that: GeoLayer =>
+            super.compare(that) match {
+                case 0 =>
+                    val delta = distance(bound.center, Camera.eye) -
+                                distance(that.bound.center, Camera.eye)
+                    if (delta < 0)      -1
+                    else if (delta > 0)  1
+                    else                 0
+                case i: Int => i
+            }
+        case that: Layer => super.compare(that)
+    }
+
     def update(region: AABB) {
         if (bound intersects region)
-            Render.updateDisplayList(displayList, bound)(Render.renderOpaqueBlock)
+            Render.updateDisplayList(displayList, bound)(renderFunc)
     }
     override def dopaint() {
         Render.gogo(displayList)
     }
 }
 
-class GlassLayer(val bound: AABB) extends Layer3d(900, true) {
-    def update(region: AABB) {
-        if (bound intersects region)
-            Render.updateDisplayList(displayList, bound)(Render.renderTranslucentBlock)
-    }
-    override def dopaint() {
-        Render.gogo(displayList)
-    }
+class TerrainLayer(bound: AABB) extends GeoLayer(bound, 100, false) {
+    def renderFunc = Render.renderOpaqueBlock
+}
+
+class GlassLayer(bound: AABB) extends GeoLayer(bound, 900, true) {
+    def renderFunc = Render.renderTranslucentBlock
 }
 
 object SelectLayer extends Layer3d(500, true) {
