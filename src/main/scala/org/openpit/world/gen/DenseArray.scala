@@ -10,16 +10,16 @@ import org.openpit.util._
 
 class Dense3DArray(origin : ConstVec3i, size : ConstVec3i) {
   val tworld = new Array[Byte](size.x * size.y * size.z)
-  def index(x : Int, y : Int, z : Int) = {
+  final def index(x : Int, y : Int, z : Int) = {
     val ox = x - origin.x
     val oy = y - origin.y
     val oz = z - origin.z
     oz * size.x * size.y + oy * size.x + ox
   }
-  def apply(x : Int, y : Int, z : Int) = {
+  final def apply(x : Int, y : Int, z : Int) = {
     tworld(index(x, y, z))
   }
-  def update(x : Int, y : Int, z : Int, v : Byte) = {
+  final def update(x : Int, y : Int, z : Int, v : Byte) = {
     tworld(index(x, y, z)) = v
   }
 }

@@ -38,9 +38,9 @@ object NoiseGenerator {
           val n = noise2(nv.x, nv.y)
           val h = (floor(2f*height * n + 10) - height).toInt
           //CellArray(x, y, -100) = 1
-          World(x, y, -height) = Water()
+          World(x, y, -height) = Water
           for(z <- -height to sealevel) 
-            World(x, y, z) = Water()
+            World(x, y, z) = Water
           for(z <- -height to h) {
             val nr = ConstVec3f(nv.x, nv.y, ((z + height) / 2f*height))
 //            val nz = noise3(nr.x, nr.y, nr.z)
@@ -51,7 +51,7 @@ object NoiseGenerator {
 //            } else {
 //                if(nz < 0.55f) {
                   counter += 1
-                  World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass() else (if (h <= (sealevel+2)) Sand() else Stone())
+                  World(x, y, z) = if (z > (h-3) && (h > sealevel+2)) Grass else (if (h <= (sealevel+2)) Sand else Stone)
 //                }
 //            }
           }
@@ -89,7 +89,7 @@ object MultipassGenerator {
       var counter = 0
       val sealevel = -height + (height / 8)
       val grassline = height - (height / 20)
-      val world = new Dense3DArray(ConstVec3i(from.x, from.y, -height), ConstVec3i(to.x - from.x + 1, to.y - from.y + 1, 2*height + 1))
+      val world = new Dense3DArray(ConstVec3i(from.x-2, from.y-2, -height-2), ConstVec3i(to.x - from.x + 5, to.y - from.y + 5, 2*height + 5))
       var heightmap = new Dense3DArray(ConstVec3i(from.x, from.y, 0), ConstVec3i(to.x - from.x + 1, to.y - from.y + 1, 1))
       val width = to.x - from.x
       val depth = to.y - from.y
@@ -146,16 +146,19 @@ object MultipassGenerator {
        }
 
        // TODO: fix the water
-        System.out.println("Generating " + from + " to " + to + " -100 to 100")
+        println("Generating " + from + " to " + to + " -100 to 100")
+        var loc = Vec3i(0,0,0)
         for(x <- from.x to to.x; y <- from.y to to.y; z <- -100 to 100) {
+            loc.x = x; loc.y = y; loc.z = z
             world(x, y, z) match {
-              case 1 => World(x, y, z) = Water()
-              case 2 => World(x, y, z) = Stone()
-              case 3 => World(x, y, z) = Sand()
-              case 4 => World(x, y, z) = Grass()
+              case 1 => World(loc) = Water
+              case 2 => World(loc) = Stone
+              case 3 => World(loc) = Sand
+              case 4 => World(loc) = Grass
               case _ => Unit
             }
         }
+        println("done!")
     }
 
 
