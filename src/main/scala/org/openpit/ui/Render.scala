@@ -26,6 +26,7 @@ object Render {
         var svbo = 0
         var count = 0
         var update = false
+        var dirty = false
     }
     var vbos = Array.fill(2200)(new VBO)
 
@@ -251,7 +252,7 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
     var threadDone: Message = null
 
     def updateDisplayList(list: Int, bound: AABB)(s: (inVec3i, Block) => Unit) = {
-        println("update req " + list)
+        vbos(list).dirty = true
         mbox send Update(list, bound, s)
     }
 
@@ -311,13 +312,16 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             while (true) {
                 mbox receive {
                     case Update(list, region, f) =>
-                        eb.clear()
-                        vb.clear()
-                        renderWorld(region)(f)
-                        threadDone = Done(list)
-                }
-                mbox receive {
-                    case Next => Unit
+                        if (vbos(list).dirty) {
+                            vbos(list).dirty = false
+                            eb.clear()
+                            vb.clear()
+                            renderWorld(region)(f)
+                            threadDone = Done(list)
+                            mbox receive {
+                                case Next => Unit
+                            }
+                        }
                 }
             }
         }
