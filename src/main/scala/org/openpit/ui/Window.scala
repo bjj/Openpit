@@ -74,7 +74,7 @@ object Window {
         glFogi(GL_FOG_MODE, GL_LINEAR)
         glFog(GL_FOG_COLOR, Array(135f/255f, 205f/255f, 222f/255f, 1.0f))
         //glFog(GL_FOG_COLOR, Array(198f/255f, 215f/255f, 216f/255f, 1.0f))
-        glFogf(GL_FOG_START, 50f)
+        glFogf(GL_FOG_START, 0.65f * Projection.maxRenderDistance)
         glFogf(GL_FOG_END, Projection.maxRenderDistance)
         glEnable(GL_FOG)
     }
