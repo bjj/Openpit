@@ -22,4 +22,9 @@ class Dense3DArray(origin : ConstVec3i, size : ConstVec3i) {
   final def update(x : Int, y : Int, z : Int, v : Byte) = {
     tworld(index(x, y, z)) = v
   }
+  final def update(v : Byte) = {
+    for(i <- 0 to (tworld.length-1)) {
+        tworld(i) = v
+    }
+  }
 }
