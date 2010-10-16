@@ -6,6 +6,13 @@ import org.openpit.util._
 abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
     extends Layer3d(zz, trans) {
 
+    /**
+     * We want to update if we intersect an update region, but when we
+     * traverse the World we don't want to process blocks from adjacent
+     * regions.
+     */
+    val renderBound = new AABB(bound.min + 0.5f, bound.max - 0.5f)
+
     import org.openpit.world.blocks._
     import simplex3d.math.intm._
     def renderFunc: (inVec3i, Block) => Unit
@@ -27,7 +34,7 @@ abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
 
     def update(region: AABB) {
         if (bound intersects region)
-            Render.updateDisplayList(displayList, bound)(renderFunc)
+            Render.updateDisplayList(displayList, renderBound)(renderFunc)
     }
     override def dopaint() {
         Render.gogo(displayList)
