@@ -31,6 +31,7 @@ object Main {
 
     def init() {
         Window.init()
+        Render.init()
         //World.generate()
         NoiseGenerator.init()
         MultipassGenerator.init()

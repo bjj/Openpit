@@ -6,6 +6,9 @@ import org.lwjgl.util.glu._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
 
+import scala.concurrent.{MailBox, TIMEOUT}
+import scala.concurrent.ops.spawn
+
 import org.openpit.util._
 import ImplicitGL._
 import org.openpit.world._
@@ -17,7 +20,14 @@ object Render {
 
     var vb = new FloatBufferBuffer()
     var eb = new ShortBufferBuffer()
-    var vbos = Array.fill(2200, 3)(0) // gross hack to associate VBOs with displaylists
+
+    class VBO {
+        var fvbo = 0
+        var svbo = 0
+        var count = 0
+        var update = false
+    }
+    var vbos = Array.fill(2200)(new VBO)
 
     object Values {
         def f(dim: Int) = {
@@ -231,43 +241,60 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
         //Main.debugTime("loop", World.foreach(bound){case _=>Unit} )
     }
 
+    class Message
+    case class Update(list: Int, region: AABB, f: (inVec3i, Block) => Unit)
+        extends Message
+    case class Done(list: Int) extends Message
+    case object Next extends Message
+
+    val mbox = new MailBox
+    var threadDone: Message = null
+
     def updateDisplayList(list: Int, bound: AABB)(s: (inVec3i, Block) => Unit) = {
-        Texture.Terrain // force load
-        eb.clear()
-        vb.clear()
-        renderWorld(bound)(s)
-        vbos(list)(2) = vb.length / 3
+        println("update req " + list)
+        mbox send Update(list, bound, s)
+    }
 
-        if (vbos(list)(0) == 0) {
-            vbos(list)(0) = glGenBuffers()
-            vbos(list)(1) = glGenBuffers()
+    def finishUpdate() {
+        threadDone match {
+            case Done(list) =>
+                vbos(list).count = vb.length / 3
+
+                if (vbos(list).fvbo == 0) {
+                    vbos(list).fvbo = glGenBuffers()
+                    vbos(list).svbo = glGenBuffers()
+                }
+                glBindBuffer(GL_ARRAY_BUFFER, vbos(list).fvbo)
+                glBufferData(GL_ARRAY_BUFFER, vb.bytes, GL_DYNAMIC_DRAW)
+                glBufferSubData(GL_ARRAY_BUFFER, 0, vb.result)
+                glBindBuffer(GL_ARRAY_BUFFER, vbos(list).svbo)
+                glBufferData(GL_ARRAY_BUFFER, eb.bytes, GL_DYNAMIC_DRAW)
+                glBufferSubData(GL_ARRAY_BUFFER, 0, eb.result)
+                //println("vb: " + vb.length + " eb: " + eb.length + " to " + vbos(list)(0) +"/"+vbos(list)(1))
+                glBindBuffer(GL_ARRAY_BUFFER, 0)
+                threadDone = null
+                mbox send Next
+            case null =>
+                Unit
         }
-        glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
-        glBufferData(GL_ARRAY_BUFFER, vb.bytes, GL_DYNAMIC_DRAW)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vb.result)
-        glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(1))
-        glBufferData(GL_ARRAY_BUFFER, eb.bytes, GL_DYNAMIC_DRAW)
-        glBufferSubData(GL_ARRAY_BUFFER, 0, eb.result)
-        println("vb: " + vb.length + " eb: " + eb.length + " to " + vbos(list)(0) +"/"+vbos(list)(1))
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
     }
 
     def gogo(list: Int) {
-        if (vbos(list)(0) != 0) {
+        finishUpdate()
+        if (vbos(list).fvbo != 0 && vbos(list).count != 0) {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY)
             glEnableClientState(GL_COLOR_ARRAY)
             glEnableClientState(GL_VERTEX_ARRAY)
-            glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(1))
+            glBindBuffer(GL_ARRAY_BUFFER, vbos(list).svbo)
             glTexCoordPointer(2, GL_SHORT, 5*eb.sizeof, 0)
             glColorPointer(3, GL_SHORT, 5*eb.sizeof, 2*eb.sizeof)
-            glBindBuffer(GL_ARRAY_BUFFER, vbos(list)(0))
+            glBindBuffer(GL_ARRAY_BUFFER, vbos(list).fvbo)
             glVertexPointer(3, GL_FLOAT, 0*vb.sizeof, 0*vb.sizeof)
             Texture.Terrain.bind(true)
             glMatrixMode(GL_TEXTURE)
             glPushMatrix()
             glScalef(1f/16f, 1f/16f, 1f)
-            glDrawArrays(GL_QUADS, 0, vbos(list)(2))
+            glDrawArrays(GL_QUADS, 0, vbos(list).count)
             glBindBuffer(GL_ARRAY_BUFFER, 0)
             glPopMatrix()
             glDisableClientState(GL_VERTEX_ARRAY)
@@ -280,5 +307,19 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
     }
 
     def init() {
+        spawn {
+            while (true) {
+                mbox receive {
+                    case Update(list, region, f) =>
+                        eb.clear()
+                        vb.clear()
+                        renderWorld(region)(f)
+                        threadDone = Done(list)
+                }
+                mbox receive {
+                    case Next => Unit
+                }
+            }
+        }
     }
 }
