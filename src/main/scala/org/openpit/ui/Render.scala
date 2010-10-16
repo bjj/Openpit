@@ -35,7 +35,8 @@ object Render {
             if (dim == 6)
                 Values.Sun
             else {
-                World.get(loc + dir + Dir.`Z+`*dim).getOrElse(Air) match {
+                import Direction._
+                World.get(loc + dir + `Z+`*dim).getOrElse(Air) match {
                         case Air | Glass | Water => light(dir, dim + 1)
                         case _ => Values(dim)
                 }
@@ -44,15 +45,6 @@ object Render {
 /*
 def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
 */
-
-        object Dir {
-            val `Z+` = ConstVec3i(0,0,1)
-            val Down = ConstVec3i(0,0,-1)
-            val Fore = ConstVec3i(0,1,0)
-            val Back = ConstVec3i(0,-1,0)
-            val Left = ConstVec3i(-1,0,0)
-            val Right = ConstVec3i(1,0,0)
-        }
 
         var occloc = Vec3i(0,0,0)
         def occluded(dir: inVec3i) = {
