@@ -30,15 +30,22 @@ object Window {
                     GL_DEPTH_BUFFER_BIT)
             for (layer <- Layer.all.sorted if layer.visible) layer.paint()
             Display.update()
-            // Uncomment this update to measure the redraw speed
-            //update()
             FPS ! FPS.Frame
-            checkErrors()
         } else {
             Thread.sleep(100)
         }
     }
 
+    /**
+     * Turn any pending OpenGL error into a traceback.  Sprinkle these
+     * liberally aruond in failing OpenGL sequences to find out what
+     * call is failing.
+     *  
+     * There's no point in calling this in the main loop because it
+     * is shockingly slow *and* the results are fairly meaningless.
+     * A subsequent call may have cleared an error, and even if it
+     * doesn't you don't know which GL call had a problem.
+     */
     def checkErrors() {
         glGetError() match {
             case 0 => Unit
