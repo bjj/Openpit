@@ -199,8 +199,10 @@ class Renderable {
     var painter: () => Unit = null
 
     def update(bound: AABB)(f: Render.WorldRenderer) {
-        dirty = true
-        Render.updateMbox send Render.Update(this, bound, f)
+        if (!dirty) {
+            dirty = true
+            Render.updateMbox send Render.Update(this, bound, f)
+        }
     }
 
     def upload(context: RenderContext) {
