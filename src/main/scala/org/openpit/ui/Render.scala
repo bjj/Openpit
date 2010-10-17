@@ -1,7 +1,24 @@
 package org.openpit.ui
 
 import org.lwjgl.opengl.GL11._
-import org.lwjgl.opengl.GL15._
+
+/*
+ * Both GL15 and the ARB extension can supply Vertex Buffer Objects.
+ * For some reason, the Intel GMA 950 driver only supports the ARB
+ * extension.  It's pretty slow anyway compared to display lists.
+ */
+//import org.lwjgl.opengl.GL15._
+import org.lwjgl.opengl.ARBBufferObject.{
+    glGenBuffersARB => glGenBuffers,
+    glBufferDataARB => glBufferData,
+    glBufferSubDataARB => glBufferSubData,
+    glBindBufferARB => glBindBuffer,
+    GL_DYNAMIC_DRAW_ARB => GL_DYNAMIC_DRAW
+}
+import org.lwjgl.opengl.ARBVertexBufferObject.{
+    GL_ARRAY_BUFFER_ARB => GL_ARRAY_BUFFER
+}
+
 import org.lwjgl.util.glu._
 import simplex3d.math.intm._
 import simplex3d.math.floatm._
