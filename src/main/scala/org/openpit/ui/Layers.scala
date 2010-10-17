@@ -13,15 +13,13 @@ abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
      */
     val renderBound = new AABB(bound.min + 0.5f, bound.max - 0.5f)
 
-    import org.openpit.world.blocks._
-    import simplex3d.math.intm._
-    def renderFunc: (inVec3i, Block) => Unit
+    def renderFunc: Render.WorldRenderer
 
-    import simplex3d.math.floatm.FloatMath._
     override def compare(other: Layer) = other match {
         case that: GeoLayer =>
             super.compare(that) match {
                 case 0 =>
+                    import simplex3d.math.floatm.FloatMath._
                     val delta = distance(bound.center, Camera.eye) -
                                 distance(that.bound.center, Camera.eye)
                     if (delta < 0)      -1
@@ -34,10 +32,10 @@ abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
 
     def update(region: AABB) {
         if (bound intersects region)
-            Render.updateDisplayList(displayList, renderBound)(renderFunc)
+            renderable.update(renderBound)(renderFunc)
     }
     override def dopaint() {
-        Render.gogo(displayList)
+        renderable.paint()
     }
 }
 

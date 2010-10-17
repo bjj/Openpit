@@ -6,9 +6,6 @@ import org.lwjgl.util.glu._
 import simplex3d.math.floatm._
 import org.openpit.util.AABB
 
-import scala.actors.Actor
-import java.lang.System.currentTimeMillis
-
 object Layer {
     abstract class Message
     case class Update(region: AABB) extends Message
@@ -27,9 +24,6 @@ object Layer {
         all = Crosshair :: SelectLayer :: all;
         val div = 32
         for (x <- -256 to 256 by div; y <- -256 to 256 by div) {
-            // XXX these layers actually overlap :(
-            // this is good when intersecting with events for redraw
-            // but bad for update...
             all = new TerrainLayer(new AABB(Vec3f(x,y,-100),
                                             Vec3f(x+div, y+div, 100))) ::
                   new GlassLayer  (new AABB(Vec3f(x,y,-100),
@@ -40,30 +34,16 @@ object Layer {
     }
 }
 
-abstract class Layer(val z:Int) extends Actor with Ordered[Layer] {
+abstract class Layer(val z:Int) extends Ordered[Layer] {
     var visible = true
     lazy val displayList = glGenLists(1)
+    lazy val renderable = new Renderable
 
     def compare(that: Layer) = this.z - that.z
 
     def update(region: AABB)
     def paint()
     def dopaint() = glCallList(displayList)
-
-    // XXX This can't be multithreaded with DisplayLists, but it could
-    // after a conversion to VBOs.  If some layers still draw with
-    // DisplayLists this would have to have both a threaded update and
-    // "invalidate and re-render on demand" flavor
-    def act() {
-        var running = true
-
-        while (running) {
-            receive {
-                case Layer.Update(region) => update(region)
-                case Layer.Shutdown => running = false
-            }
-        }
-    }
 }
 
 abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {

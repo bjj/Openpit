@@ -14,23 +14,21 @@ import ImplicitGL._
 import org.openpit.world._
 import org.openpit.world.blocks._
 
-object Render {
-
-    final val SIZEOF_FLOAT = 4
+/**
+ * A context to hold the state needed to render to VBOs (potentially
+ * from any thread)
+ */
+class RenderContext {
 
     var vb = new FloatBufferBuffer()
-    var eb = new ShortBufferBuffer()
+    var sb = new ShortBufferBuffer()
 
-    class VBO {
-        var fvbo = 0
-        var svbo = 0
-        var count = 0
-        var update = false
-        var dirty = false
+    def clear() {
+        vb.clear()
+        sb.clear()
     }
-    var vbos = Array.fill(2200)(new VBO)
 
-    object Values {
+    object LightValues {
         def f(dim: Int) = {
             val bright = (5000 * dim)
             Vec3i(bright, bright, bright)
@@ -42,29 +40,29 @@ object Render {
 
     def cube(loc: inVec3i, b: Block, top: Vec2i, side: Vec2i, bot: Vec2i) {
 
+        /**
+         * The original stupid/awesome lighting.
+         */
         def light(dir: ConstVec3i, dim: Int = 1): Vec3i = {
             if (dim == 6)
-                Values.Sun
+                LightValues.Sun
             else {
                 import Direction._
                 World.get(loc + dir + `Z+`*dim).getOrElse(Air) match {
                         case Air | Glass | Water => light(dir, dim + 1)
-                        case _ => Values(dim)
+                        case _ => LightValues(dim)
                 }
             }
         }
-/*
-def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
-*/
 
         var occloc = Vec3i(0,0,0)
         def occluded(dir: inVec3i) = {
             occloc := loc + dir
             World.get(occloc).getOrElse(Air) match {
-                    case Air => false
+                    case Air =>   false
                     case Glass => b == Glass
                     case Water => b == Water
-                    case _ => true
+                    case _ =>     true
             }
         }
 
@@ -83,10 +81,10 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
         import Direction._
         if (!occluded(`Z+`)) {
             val l = light(ConstVec3i(0,0,0))
-            eb += Vec2i(u, V); eb += l; vb += Vec3f(x,Y,Z)
-            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
-            eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
-            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,Y,Z)
+            sb += Vec2i(u, V); sb += l; vb += Vec3f(x,Y,Z)
+            sb += Vec2i(u, v); sb += l; vb += Vec3f(x,y,Z)
+            sb += Vec2i(U, v); sb += l; vb += Vec3f(X,y,Z)
+            sb += Vec2i(U, V); sb += l; vb += Vec3f(X,Y,Z)
         }
 
         u = side.x
@@ -96,34 +94,34 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
 
         if (!occluded(`Y-`)) {
             val l = light(`Y-`)
-            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
-            eb += Vec2i(u, V); eb += l; vb += Vec3f(x,y,z)
-            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
-            eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
+            sb += Vec2i(u, v); sb += l; vb += Vec3f(x,y,Z)
+            sb += Vec2i(u, V); sb += l; vb += Vec3f(x,y,z)
+            sb += Vec2i(U, V); sb += l; vb += Vec3f(X,y,z)
+            sb += Vec2i(U, v); sb += l; vb += Vec3f(X,y,Z)
         }
 
         if (!occluded(`X+`)) {
             val l = light(`X+`)
-            eb += Vec2i(U, v); eb += l; vb += Vec3f(X,y,Z)
-            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
-            eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
-            eb += Vec2i(u, v); eb += l; vb += Vec3f(X,Y,Z)
+            sb += Vec2i(U, v); sb += l; vb += Vec3f(X,y,Z)
+            sb += Vec2i(U, V); sb += l; vb += Vec3f(X,y,z)
+            sb += Vec2i(u, V); sb += l; vb += Vec3f(X,Y,z)
+            sb += Vec2i(u, v); sb += l; vb += Vec3f(X,Y,Z)
         }
 
         if (!occluded(`Y+`)) {
             val l = light(`Y+`)
-            eb += Vec2i(u, v); eb += l; vb += Vec3f(X,Y,Z)
-            eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
-            eb += Vec2i(U, V); eb += l; vb += Vec3f(x,Y,z)
-            eb += Vec2i(U, v); eb += l; vb += Vec3f(x,Y,Z)
+            sb += Vec2i(u, v); sb += l; vb += Vec3f(X,Y,Z)
+            sb += Vec2i(u, V); sb += l; vb += Vec3f(X,Y,z)
+            sb += Vec2i(U, V); sb += l; vb += Vec3f(x,Y,z)
+            sb += Vec2i(U, v); sb += l; vb += Vec3f(x,Y,Z)
         }
 
         if (!occluded(`X-`)) {
             val l = light(ConstVec3i(-1,0, 0))
-            eb += Vec2i(U, v); eb += l; vb += Vec3f(x,Y,Z)
-            eb += Vec2i(U, V); eb += l; vb += Vec3f(x,Y,z)
-            eb += Vec2i(u, V); eb += l; vb += Vec3f(x,y,z)
-            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,y,Z)
+            sb += Vec2i(U, v); sb += l; vb += Vec3f(x,Y,Z)
+            sb += Vec2i(U, V); sb += l; vb += Vec3f(x,Y,z)
+            sb += Vec2i(u, V); sb += l; vb += Vec3f(x,y,z)
+            sb += Vec2i(u, v); sb += l; vb += Vec3f(x,y,Z)
         }
 
         if (!occluded(`Z-`)) {
@@ -133,13 +131,84 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
             U = u + 1
             V = v + 1
 
-            eb += Vec2i(U, V); eb += l; vb += Vec3f(X,y,z)
-            eb += Vec2i(U, v); eb += l; vb += Vec3f(x,y,z)
-            eb += Vec2i(u, v); eb += l; vb += Vec3f(x,Y,z)
-            eb += Vec2i(u, V); eb += l; vb += Vec3f(X,Y,z)
+            sb += Vec2i(U, V); sb += l; vb += Vec3f(X,y,z)
+            sb += Vec2i(U, v); sb += l; vb += Vec3f(x,y,z)
+            sb += Vec2i(u, v); sb += l; vb += Vec3f(x,Y,z)
+            sb += Vec2i(u, V); sb += l; vb += Vec3f(X,Y,z)
         }
     }
 
+
+    /**
+     * Upload the computed VBO data to OpenGL.  Must be called from
+     * the main (GL) thread.
+     *
+     * All attributes are packed into a single VBO.  Packing must
+     * respect alignment of each datatype:  The easiest way is to
+     * pack the data from widest to narrowest type.
+     *
+     * @param  vbo is the pre-existing VBO index to load with data
+     * @result is a function which can be invoked from the GL thread
+     *         to bind the buffer, set the pointers and paint
+     */
+    def upload(vbo: Int) = {
+        val count = vb.length / 3
+        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        // Pack attribute arrays of all types into one buffer.  Ensure
+        // alignment of each segment is acceptable for type
+        glBufferData(GL_ARRAY_BUFFER, vb.bytes + sb.bytes, GL_DYNAMIC_DRAW)
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vb.result)
+        val sbStart = vb.bytes
+        glBufferSubData(GL_ARRAY_BUFFER, sbStart, sb.result)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+        def paint() {
+            glBindBuffer(GL_ARRAY_BUFFER, vbo)
+            glVertexPointer(3, GL_FLOAT, 0, 0)
+            glTexCoordPointer(2, GL_SHORT, 5*sb.sizeof, sbStart)
+            glColorPointer(3, GL_SHORT, 5*sb.sizeof, sbStart + 2*sb.sizeof)
+            glDrawArrays(GL_QUADS, 0, count)
+        }
+        paint _
+    }
+}
+
+class Renderable {
+    var dirty = false
+    lazy val vbo = glGenBuffers()
+
+    var painter: () => Unit = null
+
+    def update(bound: AABB)(f: Render.WorldRenderer) {
+        dirty = true
+        Render.updateMbox send Render.Update(this, bound, f)
+    }
+
+    def upload(context: RenderContext) {
+        painter = context.upload(vbo)
+    }
+
+    def paint() {
+        Render.updateFinish()
+        if (painter != null) {
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+            glEnableClientState(GL_COLOR_ARRAY)
+            glEnableClientState(GL_VERTEX_ARRAY)
+            Texture.Terrain.bind(true)
+            glMatrixMode(GL_TEXTURE)
+            glLoadIdentity()
+            glScalef(1f/16f, 1f/16f, 1f)
+            painter()
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+            glLoadIdentity()
+            glDisableClientState(GL_VERTEX_ARRAY)
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+            glDisableClientState(GL_COLOR_ARRAY)
+        }
+    }
+}
+
+object Render {
     val grassTop = ConstVec2i(0, 0)
     val grassBot = ConstVec2i(1, 0)
     val grassSide = ConstVec2i(2, 0)
@@ -150,175 +219,71 @@ def light(dir: ConstVec3i, dim: Int = 1) = ConstVec3i(32767, 32767, 32767)
     val sandAll = ConstVec2i(3, 0)
     val whiteAll = ConstVec2i(10, 10)
 
-    def grass(loc: inVec3i, b: Block) { cube(loc, b, grassTop, grassSide, grassBot) }
-    def stone(loc: inVec3i, b: Block) { cube(loc, b, stoneAll, stoneAll, stoneAll) }
-    def glass(loc: inVec3i, b: Block) { cube(loc, b, glassAll, glassAll, glassAll) }
-    def cobblestone(loc: inVec3i, b: Block) { cube(loc, b, cobblestoneAll, cobblestoneAll, cobblestoneAll) }
-    def water(loc: inVec3i, b: Block) { cube(loc, b, waterAll, waterAll, waterAll) }
-    def sand(loc: inVec3i, b: Block) { cube(loc, b, sandAll, sandAll, sandAll) }
-    def noise(loc: inVec3i, c: ConstVec3f) {
-      var u = whiteAll.x
-      var v = whiteAll.y
-      var U = u + 1f/16f
-      var V = v + 1f/16f
-
-      val x = loc.x
-      val y = loc.y
-      val z = loc.z
-      val X = x + 1
-      val Y = y + 1
-      val Z = z + 1
-
-//      glEnd()
-//      glBegin(GL_POINTS)
-//
-//      glColor3f(c.x, c.y, c.z)
-//      glVertex3i(x, y, z)
-//
-//      glEnd()
-//      glBegin(GL_QUADS)
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(u, V); glVertex3i(x,Y,Z)
-      glTexCoord2f(u, v); glVertex3i(x,y,Z)
-      glTexCoord2f(U, v); glVertex3i(X,y,Z)
-      glTexCoord2f(U, V); glVertex3i(X,Y,Z)
-
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(U, v); glVertex3i(x,Y,Z)
-      glTexCoord2f(U, V); glVertex3i(x,Y,z)
-      glTexCoord2f(u, V); glVertex3i(x,y,z)
-      glTexCoord2f(u, v); glVertex3i(x,y,Z)
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(u, v); glVertex3i(x,y,Z)
-      glTexCoord2f(u, V); glVertex3i(x,y,z)
-      glTexCoord2f(U, V); glVertex3i(X,y,z)
-      glTexCoord2f(U, v); glVertex3i(X,y,Z)
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(U, v); glVertex3i(X,y,Z)
-      glTexCoord2f(U, V); glVertex3i(X,y,z)
-      glTexCoord2f(u, V); glVertex3i(X,Y,z)
-      glTexCoord2f(u, v); glVertex3i(X,Y,Z)
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(u, v); glVertex3i(X,Y,Z)
-      glTexCoord2f(u, V); glVertex3i(X,Y,z)
-      glTexCoord2f(U, V); glVertex3i(x,Y,z)
-      glTexCoord2f(U, v); glVertex3i(x,Y,Z)
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(U, v); glVertex3i(x,Y,Z)
-      glTexCoord2f(U, V); glVertex3i(x,Y,z)
-      glTexCoord2f(u, V); glVertex3i(x,y,z)
-      glTexCoord2f(u, v); glVertex3i(x,y,Z)
-
-      glColor3f(c.x, c.y, c.z)
-      glTexCoord2f(U, V); glVertex3i(X,y,z)
-      glTexCoord2f(U, v); glVertex3i(x,y,z)
-      glTexCoord2f(u, v); glVertex3i(x,Y,z)
-      glTexCoord2f(u, V); glVertex3i(X,Y,z)
+    def texture(block: Block) = block match {
+        case Grass => (grassTop, grassSide, grassBot)
+        case Stone => (stoneAll, stoneAll, stoneAll)
+        case Glass => (glassAll, glassAll, glassAll)
+        case Water => (waterAll, waterAll, waterAll)
+        case Sand  => (sandAll, sandAll, sandAll)
+        case Cobblestone => (cobblestoneAll, cobblestoneAll, cobblestoneAll)
+        case Noise(c) => (whiteAll, whiteAll, whiteAll)
+        case _     => (whiteAll, whiteAll, whiteAll)
     }
 
-    def renderOpaqueBlock(l: inVec3i, b: Block) = b match {
-        case Grass => grass(l, b)
-        case Stone => stone(l, b)
-        case Cobblestone => cobblestone(l, b)
-        case Sand => sand(l, b)
-        case Noise(color) => noise(l, color)
+    def renderOpaqueBlock(rc: RenderContext, l: inVec3i, b: Block) = b match {
+        case Glass | Water | Air => Unit
+        case _ =>
+            val tex = texture(b)
+            rc.cube(l, b, tex._1, tex._2, tex._3)
+    }
+
+    def renderTranslucentBlock(rc: RenderContext, l: inVec3i, b: Block) = b match {
+        case Glass | Water =>
+            val tex = texture(b)
+            rc.cube(l, b, tex._1, tex._2, tex._3)
         case _ => Unit
     }
 
-    def renderTranslucentBlock(l: inVec3i, b: Block) = b match {
-        case Glass => glass(l, b)
-        case Water => water(l, b)
-        case _ => Unit
-    }
+    type WorldRenderer = (RenderContext, inVec3i, Block) => Unit
 
-    def renderWorld(bound: AABB)(s: (inVec3i, Block)=>Unit) {
-        World.foreach(bound)(s)
-        //Main.debugTime("loop", World.foreach(bound){case _=>Unit} )
+    def renderWorld(bound: AABB)(f: WorldRenderer) {
+        World.foreach(bound) {
+            (loc, block) => f(context, loc, block)
+        }
     }
 
     class Message
-    case class Update(list: Int, region: AABB, f: (inVec3i, Block) => Unit)
+    case class Update(rable: Renderable, region: AABB, f: WorldRenderer)
         extends Message
-    case class Done(list: Int) extends Message
+    case class Done(rable: Renderable) extends Message
     case object Next extends Message
 
-    val mbox = new MailBox
-    var threadDone: Message = null
+    val context = new RenderContext
+    val updateMbox = new MailBox
+    var updateDone: Message = null
 
-    def updateDisplayList(list: Int, bound: AABB)(s: (inVec3i, Block) => Unit) = {
-        vbos(list).dirty = true
-        mbox send Update(list, bound, s)
-    }
-
-    def finishUpdate() {
-        threadDone match {
-            case Done(list) =>
-                vbos(list).count = vb.length / 3
-
-                if (vbos(list).fvbo == 0) {
-                    vbos(list).fvbo = glGenBuffers()
-                    vbos(list).svbo = glGenBuffers()
-                }
-                glBindBuffer(GL_ARRAY_BUFFER, vbos(list).fvbo)
-                glBufferData(GL_ARRAY_BUFFER, vb.bytes, GL_DYNAMIC_DRAW)
-                glBufferSubData(GL_ARRAY_BUFFER, 0, vb.result)
-                glBindBuffer(GL_ARRAY_BUFFER, vbos(list).svbo)
-                glBufferData(GL_ARRAY_BUFFER, eb.bytes, GL_DYNAMIC_DRAW)
-                glBufferSubData(GL_ARRAY_BUFFER, 0, eb.result)
-                //println("vb: " + vb.length + " eb: " + eb.length + " to " + vbos(list)(0) +"/"+vbos(list)(1))
-                glBindBuffer(GL_ARRAY_BUFFER, 0)
-                threadDone = null
-                mbox send Next
+    def updateFinish() {
+        updateDone match {
+            case Done(rable) =>
+                rable.upload(context)
+                updateDone = null
+                updateMbox send Next
             case null =>
                 Unit
         }
     }
 
-    def gogo(list: Int) {
-        finishUpdate()
-        if (vbos(list).fvbo != 0 && vbos(list).count != 0) {
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-            glEnableClientState(GL_COLOR_ARRAY)
-            glEnableClientState(GL_VERTEX_ARRAY)
-            glBindBuffer(GL_ARRAY_BUFFER, vbos(list).svbo)
-            glTexCoordPointer(2, GL_SHORT, 5*eb.sizeof, 0)
-            glColorPointer(3, GL_SHORT, 5*eb.sizeof, 2*eb.sizeof)
-            glBindBuffer(GL_ARRAY_BUFFER, vbos(list).fvbo)
-            glVertexPointer(3, GL_FLOAT, 0*vb.sizeof, 0*vb.sizeof)
-            Texture.Terrain.bind(true)
-            glMatrixMode(GL_TEXTURE)
-            glPushMatrix()
-            glScalef(1f/16f, 1f/16f, 1f)
-            glDrawArrays(GL_QUADS, 0, vbos(list).count)
-            glBindBuffer(GL_ARRAY_BUFFER, 0)
-            glPopMatrix()
-            glDisableClientState(GL_VERTEX_ARRAY)
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-            glDisableClientState(GL_COLOR_ARRAY)
-        }
-    }
-
-    def render() {
-    }
-
     def init() {
         spawn {
             while (true) {
-                mbox receive {
-                    case Update(list, region, f) =>
-                        if (vbos(list).dirty) {
-                            vbos(list).dirty = false
-                            eb.clear()
-                            vb.clear()
+                updateMbox receive {
+                    case Update(rable, region, f) =>
+                        if (rable.dirty) {
+                            rable.dirty = false
+                            context.clear()
                             renderWorld(region)(f)
-                            threadDone = Done(list)
-                            mbox receive {
+                            updateDone = Done(rable)
+                            updateMbox receive {
                                 case Next => Unit
                             }
                         }
