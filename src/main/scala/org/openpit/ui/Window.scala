@@ -43,7 +43,7 @@ object Window {
         glGetError() match {
             case 0 => Unit
             case err: Int =>
-                error("GL ERROR: %s\n" +  GLU.gluErrorString(err))
+                error("GL ERROR: " + GLU.gluErrorString(err))
         }
     }
 
