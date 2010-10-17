@@ -54,8 +54,9 @@ object Window {
     }
 
     def init() {
-        //resize(800, 450)
-        resize(1680, 1050)
+        val desktop = Display.getDesktopDisplayMode()
+        resize((desktop.getWidth() * 90 / 100) min 1680,
+               (desktop.getHeight() * 90 / 100) min 1050)
         Display.setDisplayMode(new DisplayMode(width, height))
         Display.setTitle("Openpit")
         //Display.setVSyncEnabled(true)
