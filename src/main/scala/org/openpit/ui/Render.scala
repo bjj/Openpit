@@ -163,11 +163,13 @@ class RenderContext {
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
         def paint() {
-            glBindBuffer(GL_ARRAY_BUFFER, vbo)
-            glVertexPointer(3, GL_FLOAT, 0, 0)
-            glTexCoordPointer(2, GL_SHORT, 5*sb.sizeof, sbStart)
-            glColorPointer(3, GL_SHORT, 5*sb.sizeof, sbStart + 2*sb.sizeof)
-            glDrawArrays(GL_QUADS, 0, count)
+            if (count != 0) {
+                glBindBuffer(GL_ARRAY_BUFFER, vbo)
+                glVertexPointer(3, GL_FLOAT, 0, 0)
+                glTexCoordPointer(2, GL_SHORT, 5*sb.sizeof, sbStart)
+                glColorPointer(3, GL_SHORT, 5*sb.sizeof, sbStart + 2*sb.sizeof)
+                glDrawArrays(GL_QUADS, 0, count)
+            }
         }
         paint _
     }
