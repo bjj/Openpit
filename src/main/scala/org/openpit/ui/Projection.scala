@@ -13,8 +13,11 @@ object Projection {
     val maxRenderDistance = 250f
     private def setup_perspective() {
         import org.openpit.ui.Camera
-        // view frustrum should track fog setup
-        GLU.gluPerspective(40, Window.aspect, 0.001f, maxRenderDistance)
+        // The ratio of znear to zfar determines how Z-buffer values
+        // will be calculated.  If znear is too low, there will be too
+        // little precision in the Z-buffer for distant pixels which
+        // will cause ugly twittering
+        GLU.gluPerspective(40, Window.aspect, 0.09f, maxRenderDistance)
         Camera.look()
     }
 

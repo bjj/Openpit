@@ -12,7 +12,8 @@ import org.lwjgl.util.glu.GLU
 object Camera {
     var yaw = 0.0f
     var pitch = 0.0f
-    var height = 1.7f
+    var height = 1.70f
+    var forehead = 0.10f
     var radius = 0.3f
     var loc = Vec3f(20.5f, 20.5f, 12.5f)
     var prevloc = loc clone
@@ -35,7 +36,8 @@ object Camera {
         GLU.gluLookAt(0,0,0, 0,1,0, 0,0,1)
         GL11.glRotatef(-pitch, 1f, 0, 0)
         GL11.glRotatef(-yaw, 0, 0, 1.0f)
-        GL11.glTranslatef(-loc.x, -loc.y, -loc.z-height)
+        val pos = eye
+        GL11.glTranslatef(-pos.x, -pos.y, -pos.z)
     }
 
     def beginJump() {
@@ -115,10 +117,14 @@ object Camera {
         loc += direction * d
     }
 
-    def eye = loc + Vec3f(0, 0, height)
+    val headOffset = ConstVec3f(0, 0, height)
+    val eyeOffset = ConstVec3f(0, 0, height - forehead)
+
+    def head = loc + headOffset
+    def eye = loc + eyeOffset
     def direction = rotateVector(lookat, qyaw() * qpitch)
 
     def collisionBox() = new AABB(loc - ConstVec3f(1,1,0) * radius,
-                                  eye + ConstVec3f(1,1,0) * radius)
+                                  head + ConstVec3f(1,1,0) * radius)
 
 }
