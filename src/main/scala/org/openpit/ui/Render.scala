@@ -212,9 +212,6 @@ class Renderable {
     def paint() {
         Render.updateFinish()
         if (painter != null) {
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-            glEnableClientState(GL_COLOR_ARRAY)
-            glEnableClientState(GL_VERTEX_ARRAY)
             Texture.Terrain.bind(true)
             glMatrixMode(GL_TEXTURE)
             glLoadIdentity()
@@ -222,9 +219,6 @@ class Renderable {
             painter()
             glBindBuffer(GL_ARRAY_BUFFER, 0)
             glLoadIdentity()
-            glDisableClientState(GL_VERTEX_ARRAY)
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-            glDisableClientState(GL_COLOR_ARRAY)
         }
     }
 }
@@ -295,6 +289,13 @@ object Render {
     }
 
     def init() {
+        // I see no downside to having these on all the time...
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        glEnableClientState(GL_COLOR_ARRAY)
+        glEnableClientState(GL_VERTEX_ARRAY)
+
+        // A task to do VBO updates (into arrays) which are then
+        // loaded into the GPU from the GL task
         spawn {
             while (true) {
                 updateMbox receive {
