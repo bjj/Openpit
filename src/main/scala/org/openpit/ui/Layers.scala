@@ -3,6 +3,8 @@ package org.openpit.ui
 import org.lwjgl.opengl.GL11._
 import org.openpit.util._
 
+import simplex3d.math.floatm._
+
 abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
     extends Layer3d(zz, trans) {
 
@@ -15,6 +17,10 @@ abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
 
     def renderFunc: Render.WorldRenderer
 
+    /**
+     * Layers are sorted by draw depth, so add a secondary key of
+     * proximity to Camera.eye
+     */
     override def compare(other: Layer) = other match {
         case that: GeoLayer =>
             super.compare(that) match {
@@ -29,6 +35,11 @@ abstract class GeoLayer(val bound: AABB, var zz: Int, var trans: Boolean)
             }
         case that: Layer => super.compare(that)
     }
+
+    /**
+     * Add view culling visibility test
+     */
+    override def visible(frustum: List[Vec4f]) = bound intersects frustum
 
     def update(region: AABB) {
         if (bound intersects region)

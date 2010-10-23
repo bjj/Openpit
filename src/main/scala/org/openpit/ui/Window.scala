@@ -28,7 +28,14 @@ object Window {
             //Display.sync(framerate)
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT)
-            for (layer <- Layer.all.sorted if layer.visible) layer.paint()
+            Projection.update()
+            val frustum = Projection.frustum
+            /*
+            println(Layer.all.count(_.visible(frustum)) +
+                    " of " + Layer.all.length)
+            */
+            for (layer <- Layer.all.sorted if layer.visible(frustum))
+                layer.paint()
             Display.update()
             FPS ! FPS.Frame
         } else {

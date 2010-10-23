@@ -35,7 +35,9 @@ object Layer {
 }
 
 abstract class Layer(val z:Int) extends Ordered[Layer] {
-    var visible = true
+    def visible = true
+    def visible(frustum: List[Vec4f]): Boolean = visible
+
     lazy val displayList = glGenLists(1)
     lazy val renderable = new Renderable
 
