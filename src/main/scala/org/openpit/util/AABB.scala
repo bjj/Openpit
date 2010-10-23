@@ -61,6 +61,23 @@ class AABB (a: Vec3f, b: Vec3f) {
            (max.z < loc.z) || (min.z > loc.z+1))
     }
 
+    /**
+     * Intersection test with frustum
+     *
+     * @param frustum  List of 6 planes as Vec4f ax+by+cz+d with
+     *                 normal vector a,b,c normalized
+     * @result approximate intersection -- some false positives due to
+     *         weaknesses in the test
+     */
+    def intersects(frustum: List[Vec4f]): Boolean = {
+        frustum.foreach { plane =>
+            val norm = plane.xyz
+            var dist = dot(norm, p_vertex(norm))
+            if (dist < -plane.w) return false
+        }
+        true
+    }
+
     final def intersection(aabb: AABB) = {
         val result = new AABB(FloatMath.max(min, aabb.min),
                               FloatMath.min(max, aabb.max))
@@ -88,6 +105,22 @@ class AABB (a: Vec3f, b: Vec3f) {
     final def rounded = new AABB(floor(min), ceil(max))
 
     final def center = (min + max) * 0.5f
+
+    /**
+     * The p-vertex is the corner farthest in the direction of
+     * the specified normal.  The n-vertex is the opposite corner.
+     */
+    final def p_vertex(v: Vec3f) = {
+        Vec3f(if (v.x >= 0) max.x else min.x,
+              if (v.y >= 0) max.y else min.y,
+              if (v.z >= 0) max.z else min.z)
+    }
+
+    final def n_vertex(v: Vec3f) = {
+        Vec3f(if (v.x >= 0) min.x else max.x,
+              if (v.y >= 0) min.y else max.y,
+              if (v.z >= 0) min.z else max.z)
+    }
 
     /**
      * Cast a ray toward this AABB and find the distance.
