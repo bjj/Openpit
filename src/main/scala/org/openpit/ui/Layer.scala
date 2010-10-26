@@ -32,6 +32,8 @@ object Layer {
         }
         update();
     }
+
+    var blending = false
 }
 
 abstract class Layer(val z:Int) extends Ordered[Layer] {
@@ -46,6 +48,17 @@ abstract class Layer(val z:Int) extends Ordered[Layer] {
     def update(region: AABB)
     def paint()
     def dopaint() = glCallList(displayList)
+    def doblend(on: Boolean) = {
+        if (on != Layer.blending) {
+            if (on) {
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            } else {
+                glDisable(GL_BLEND)
+            }
+            Layer.blending = on
+        }
+    }
 }
 
 abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
@@ -54,13 +67,8 @@ abstract class Layer3d(zz: Int, val blend: Boolean) extends Layer(zz) {
 
         if (displayList != 0) {
             Projection.perspective()
-            if (blend) {
-                glEnable(GL_BLEND)
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            }
+            doblend(blend)
             dopaint()
-            if (blend)
-                glDisable(GL_BLEND)
         }
     }
 }
@@ -71,10 +79,8 @@ abstract class Layer2d(zz: Int) extends Layer(zz) {
 
         if (displayList != 0) {
             Projection.ortho()
-            glEnable(GL_BLEND)
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            doblend(true)
             dopaint()
-            glDisable(GL_BLEND)
         }
     }
 }
