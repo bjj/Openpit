@@ -19,6 +19,9 @@ object Window {
     var width = 1
     var height = 1
     var aspect = 1.0f
+    var shader: Shader = null
+
+    lazy val secondsPerTick : Float = 1.0f / Sys.getTimerResolution().toFloat
 
     def paint() {
         import console.FPS
@@ -34,6 +37,8 @@ object Window {
             println(Layer.all.count(_.visible(frustum)) +
                     " of " + Layer.all.length)
             */
+            import java.lang.Math.PI
+            shader.set("waveTime", ((Sys.getTime() * secondsPerTick) % (2*PI)) toFloat)
             for (layer <- Layer.all.sorted if layer.visible(frustum))
                 layer.paint()
             Display.update()
@@ -92,6 +97,21 @@ object Window {
         glFogf(GL_FOG_START, 0.65f * Projection.maxRenderDistance)
         glFogf(GL_FOG_END, Projection.maxRenderDistance)
         glEnable(GL_FOG)
+
+        shader = new Shader("""
+            uniform float waveTime;
+            void main(void)
+            {
+                vec4 pos = gl_Vertex;
+                if (gl_MultiTexCoord0.s >= 2 && gl_MultiTexCoord0.t >= 2) {
+                    pos.z += 0.1 * sin(length(pos.xy) + waveTime);
+                }
+                gl_Position = gl_ModelViewProjectionMatrix * pos;
+                gl_FrontColor = gl_Color;
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+            }""",
+            null)
+        shader.bind()
     }
 
     def update() {
