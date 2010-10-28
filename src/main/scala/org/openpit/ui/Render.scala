@@ -75,11 +75,20 @@ class RenderContext {
         var occloc = Vec3i(0,0,0)
         def occluded(dir: inVec3i) = {
             occloc := loc + dir
-            World.get(occloc).getOrElse(Air) match {
-                    case Air =>   false
-                    case Glass => b == Glass
-                    case Water => b == Water
-                    case _ =>     true
+            val occb = World.get(occloc).getOrElse(Air)
+            b match {
+                case Water =>
+                    // If the current block is water, it is only occluded
+                    // by other water.  That allows water to "ripple"
+                    // without ripping holes in the fabric of space.
+                    occb == Water
+                case _ =>
+                    occb match {
+                        case Air =>   false
+                        case Glass => b == Glass
+                        case Water => b == Water
+                        case _ =>     true
+                }
             }
         }
 
