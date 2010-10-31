@@ -19,16 +19,14 @@ import ImplicitGL._
  */
 class Shader(vertexSrc: String, fragmentSrc: String) {
     lazy val programId = load()
-    lazy val vertexId = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB)
-    lazy val fragmentId = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB)
 
     /**
      * Check the compile status of the given id.  Laboriously extract the
      * infoLog and raise it as an error.
      */
-    private def checkError(id: Int) {
+    private def checkError(id: Int, param: Int) {
         val result = createIntBuffer(1)
-        glGetObjectParameterARB(id, GL_OBJECT_COMPILE_STATUS_ARB, result)
+        glGetObjectParameterARB(id, param, result)
         if (result.get(0) == 0) {
             result.rewind()
             glGetObjectParameterARB(id, GL_OBJECT_INFO_LOG_LENGTH_ARB, result)
@@ -51,11 +49,13 @@ class Shader(vertexSrc: String, fragmentSrc: String) {
         buf.flip()
         glShaderSourceARB(id, buf)
         glCompileShaderARB(id)
-        checkError(id)
+        checkError(id, GL_OBJECT_COMPILE_STATUS_ARB)
         glAttachObjectARB(programId, id)
     }
 
     private def load()  = {
+        val vertexId = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB)
+        val fragmentId = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB)
         val programId = glCreateProgramObjectARB()
         vertexSrc match {
             case null => {}
@@ -66,6 +66,9 @@ class Shader(vertexSrc: String, fragmentSrc: String) {
             case s    => compile(fragmentId, programId, s)
         }
         glLinkProgramARB(programId)
+        checkError(programId, GL_OBJECT_LINK_STATUS_ARB)
+        glDeleteObjectARB(vertexId)
+        glDeleteObjectARB(fragmentId)
         programId
     }
 
